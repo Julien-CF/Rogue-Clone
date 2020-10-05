@@ -14,6 +14,8 @@ public class Room  {
   int height;
   int width;
   HashMap<String,Integer> door = new HashMap<>();
+  HashMap<String,String> symbols = new HashMap<>();
+  boolean in_room = false;
 
     // Default constructor
  public Room() {
@@ -21,10 +23,19 @@ public class Room  {
  }
 
 
-
-
    // Required getter and setters below
 
+  public void setSymbol(HashMap<String,String> symbol){
+    this.symbols = symbol;
+  }
+
+  public void setIn_room(boolean newIn_room){
+    this.in_room = newIn_room;
+  }
+
+  public boolean getIn_Room(){
+    return (this.in_room);
+  }
 
  public int getWidth() {
    return this.width;
@@ -75,14 +86,15 @@ public class Room  {
  public void setPlayer(Player newPlayer) {
 
  }
-
-
-
-
-
-
+// BROKEN NEEDS FIXING ASAP ROCKY TOMORROW
  public int getDoor(String direction){
-  int i = this.door.get(direction);
+   int i;
+   if(this.door.get(direction) == null){
+     i = -1;
+   }
+   else{
+     i = this.door.get(direction);
+   }
     return (i) ;
  }
 
@@ -97,11 +109,41 @@ public void setDoor(String direction, int location){
 
 
 public boolean isPlayerInRoom() {
-
-return true;
+  return (this.in_room);
 }
 
 
+public String createNS(String dir){
+  int test = getDoor(dir);
+  String North = "";
+  String roof = this.symbols.get("NS_WALL");
+  for(int i = 0; i < getWidth(); i++){
+    if(i == test){
+      North = North + this.symbols.get("DOOR");
+    }
+    else{
+      North = North + roof;
+    }
+  }
+  North = North + "\n";
+  return(North);
+}
+
+public String createContent(){
+  String content = "";
+  String wall = this.symbols.get("EW_WALL");
+  String floor = this.symbols.get("FLOOR");
+
+  for(int i = 0; i < getHeight() - 2; i++){
+    content = content + wall;
+    for(int j = 0; j < getWidth() - 2; j++){
+      content = content + floor;
+    }
+    content = content + wall;
+    content = content + "\n";
+  }
+  return(content);
+}
 
 
    /**
@@ -109,8 +151,12 @@ return true;
     * @return (String) String representation of how the room looks
     */
    public String displayRoom() {
-    return null;
+     String map = "";
+     map = map + createNS("N");
+     map = map + createContent();
+     map = map + createNS("S");
+     map = map + "\n";
 
-
+    return (map);
    }
 }

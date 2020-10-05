@@ -1,19 +1,19 @@
 {
     "symbols": [
         {
-            "name": "PASSAGE", 
+            "name": "PASSAGE",
             "symbol": "#"
         },
         {
-            "name": "DOOR", 
+            "name": "DOOR",
             "symbol": "+"
         },
         {
-            "name": "FLOOR", 
+            "name": "FLOOR",
             "symbol": "."
         },
         {
-            "name": "PLAYER", 
+            "name": "PLAYER",
             "symbol": "@"
         },
         {
@@ -27,6 +27,6 @@
          {
             "name": "EW_WALL",
             "symbol": "|"
-        }                 
+        }
     ]
 }

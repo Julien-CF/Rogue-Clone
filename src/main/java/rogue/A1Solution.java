@@ -55,7 +55,9 @@ public class A1Solution{
 
 // instantiate a new Rogue object and call methods to do the required things
         Rogue test = new Rogue();
+        test.setSymbols(symbol_loc);
         test.createRooms(room_loc);
+        test.displayAll();
 
     }
 
