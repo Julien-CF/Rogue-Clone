@@ -1,7 +1,8 @@
 package rogue;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.Map;
 import java.awt.Point;
+import java.util.HashMap;
 
 
 /**
@@ -9,48 +10,48 @@ import java.awt.Point;
  * doors out, etc.
  */
 public class Room  {
-
-  
+  int id;
+  int height;
+  int width;
+  HashMap<String,Integer> door = new HashMap<>();
 
     // Default constructor
  public Room() {
 
  }
 
- 
+
 
 
    // Required getter and setters below
 
- 
+
  public int getWidth() {
-
-return 0;
+   return this.width;
  }
 
- 
+
  public void setWidth(int newWidth) {
-
+   this.width = newWidth;
  }
 
- 
- public int getHeight() {
 
-return 0;
+ public int getHeight() {
+   return this.height;
  }
 
 
  public void setHeight(int newHeight) {
+   this.height = newHeight;
  }
 
  public int getId() {
-    return 0;
-
+    return this.id;
  }
 
 
  public void setId(int newId) {
-
+   this.id = newId;
  }
 
 
@@ -76,14 +77,13 @@ return 0;
  }
 
 
- 
+
 
 
 
  public int getDoor(String direction){
-
-    return 0;
-
+  int i = this.door.get(direction);
+    return (i) ;
  }
 
 /*
@@ -92,7 +92,7 @@ location is a number between 0 and the length of the wall
 */
 
 public void setDoor(String direction, int location){
-
+  this.door.put(direction, location);
 }
 
 
@@ -110,7 +110,7 @@ return true;
     */
    public String displayRoom() {
     return null;
-     
-     
+
+
    }
 }

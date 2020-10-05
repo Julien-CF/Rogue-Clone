@@ -14,6 +14,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.util.Iterator;
 
 
 public class A1Solution{
@@ -21,23 +22,29 @@ public class A1Solution{
 
 
 
-    public static void main(String[] args) { 
+    public static void main(String[] args) {
         // Hardcoded configuration file location/name
         String configurationFileLocation = "fileLocations.json";  //please don't change this for this version of the assignment
-        
+        String room_loc = "";
+        String symbol_loc = "";
+
  // reading the input file locations using the configuration file
         JSONParser parser = new JSONParser();
         try {
 
             Object obj = parser.parse(new FileReader(configurationFileLocation));
             JSONObject configurationJSON = (JSONObject) obj;
-
             // Extract the Rooms value from the file to get the file location for rooms
-            
+            room_loc = (String) configurationJSON.get("Rooms");
 
             // Extract the Symbols value from the file to get the file location for symbols-map
+            symbol_loc = (String) configurationJSON.get("Symbols");
 
-            
+
+
+
+
+
         } catch(FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -47,8 +54,9 @@ public class A1Solution{
         }
 
 // instantiate a new Rogue object and call methods to do the required things
-        System.out.println("We have liftoff!");
-        
+        Rogue test = new Rogue();
+        test.createRooms(room_loc);
+
     }
 
 
