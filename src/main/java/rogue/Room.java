@@ -13,9 +13,11 @@ public class Room  {
   int id;
   int height;
   int width;
+  ArrayList<Item> loot_list = new ArrayList<Item>();
   HashMap<String,Integer> door = new HashMap<>();
   HashMap<String,String> symbols = new HashMap<>();
   boolean in_room = false;
+  Player player;
 
     // Default constructor
  public Room() {
@@ -67,26 +69,24 @@ public class Room  {
 
 
  public ArrayList<Item> getRoomItems() {
-    return null;
-
+    return (this.loot_list);
  }
 
 
  public void setRoomItems(ArrayList<Item> newRoomItems) {
-
+   this.loot_list = newRoomItems;
  }
 
 
  public Player getPlayer() {
-    return null;
-
+    return this.player;
  }
 
 
  public void setPlayer(Player newPlayer) {
-
+   this.player = newPlayer;
  }
-// BROKEN NEEDS FIXING ASAP ROCKY TOMORROW
+
  public int getDoor(String direction){
    int i;
    if(this.door.get(direction) == null){
@@ -114,11 +114,11 @@ public boolean isPlayerInRoom() {
 
 
 public String createNS(String dir){
-  int test = getDoor(dir);
+  int door_pos = getDoor(dir);
   String North = "";
   String roof = this.symbols.get("NS_WALL");
   for(int i = 0; i < getWidth(); i++){
-    if(i == test){
+    if(i == door_pos){
       North = North + this.symbols.get("DOOR");
     }
     else{
@@ -129,19 +129,67 @@ public String createNS(String dir){
   return(North);
 }
 
+public boolean itemIsThere( int i, int j){
+  boolean test = false;
+  ArrayList<Item> temp = getRoomItems();
+  for(int t = 0; t < temp.size(); t++){
+    Item temp_i = temp.get(t);
+    Point temp_p = temp_i.getXyLocation();
+    int x = (int) temp_p.getX();
+    int y = (int) temp_p.getY();
+    if(j == x && i == y){
+      test = true;
+    }
+
+  }
+  return(test);
+}
+
 public String createContent(){
   String content = "";
   String wall = this.symbols.get("EW_WALL");
   String floor = this.symbols.get("FLOOR");
+  int door_posW = getDoor("W");
+  int door_posE = getDoor("E");
+  Point player_pos = new Point(-1,-1);
+  if(isPlayerInRoom() == true){
+    player_pos = this.player.getXyLocation();
+  }
 
-  for(int i = 0; i < getHeight() - 2; i++){
-    content = content + wall;
-    for(int j = 0; j < getWidth() - 2; j++){
-      content = content + floor;
+
+  for(int i = 1; i < getHeight() - 1; i++){
+
+    if(i == door_posW){
+      content = content + this.symbols.get("DOOR");
     }
-    content = content + wall;
+    else{
+      content = content + wall;
+    }
+
+    for(int j = 1; j < getWidth() -1; j++){
+
+      if(j == player_pos.getX() && i == player_pos.getY()){
+        content = content + this.symbols.get("PLAYER");
+      }
+      else if(itemIsThere(i, j) == true ){
+        content = content + this.symbols.get("ITEM");
+      }
+      else{
+        content = content + floor;
+      }
+
+    }
+
+    if(i == door_posE){
+      content = content + this.symbols.get("DOOR");
+    }
+    else{
+      content = content + wall;
+    }
+
     content = content + "\n";
   }
+
   return(content);
 }
 
