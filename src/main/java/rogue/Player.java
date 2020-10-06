@@ -6,19 +6,19 @@ import java.awt.Point;
  */
 public class Player {
 
-Room current_room;
-String name;
-Point position;
+private Room currentRoom;
+private String name;
+private Point position;
 
     // Default constructor
     public Player() {
-      this.current_room = null;
-      this.name = "";
+        this.currentRoom = null;
+        this.name = "";
     }
 
 
     public Player(String name) {
-      this.name = name;
+        this.name = name;
     }
 
 
@@ -28,25 +28,25 @@ Point position;
 
 
     public void setName(String newName) {
-      this.name = newName;
+        this.name = newName;
     }
 
     public Point getXyLocation() {
-      return(this.position);
+        return(this.position);
     }
 
 
     public void setXyLocation(Point newXyLocation) {
-      this.position = newXyLocation;
+        this.position = newXyLocation;
     }
 
 
     public Room getCurrentRoom() {
-        return (this.current_room);
+        return (this.currentRoom);
     }
 
 
     public void setCurrentRoom(Room newRoom) {
-      this.current_room = newRoom;
+        this.currentRoom = newRoom;
     }
 }

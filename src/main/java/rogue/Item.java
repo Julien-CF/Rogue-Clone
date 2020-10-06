@@ -6,11 +6,13 @@ import java.awt.Point;
  */
 public class Item  {
 
-int id;
-String name;
-String type;
-Point Xylocation;
-Room current_room;
+private int id;
+private String name;
+private String type;
+private String description;
+private Point xyLocation;
+private Room currentRoom;
+private Character character;
 
     //Constructors
     public Item() {
@@ -18,10 +20,10 @@ Room current_room;
     }
 
     public Item(int id, String name, String type, Point xyLocation) {
-      this.id = id;
-      this.name = name;
-      this.type = type;
-      this.Xylocation = xyLocation;
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.xyLocation = xyLocation;
     }
 
     // Getters and setters
@@ -33,7 +35,7 @@ Room current_room;
 
 
     public void setId(int id) {
-      this.id = id;
+        this.id = id;
     }
 
 
@@ -43,7 +45,7 @@ Room current_room;
 
 
     public void setName(String name) {
-      this.name = name;
+        this.name = name;
     }
 
 
@@ -53,49 +55,47 @@ Room current_room;
 
 
     public void setType(String type) {
-      this.type = type;
+        this.type = type;
     }
 
 
     public Character getDisplayCharacter() {
-        return null;
-
+        return this.character;
     }
 
 
     public void setDisplayCharacter(Character newDisplayCharacter) {
-
+        this.character = newDisplayCharacter;
     }
 
 
     public String getDescription() {
-        return null;
-
+        return (this.description);
     }
 
 
     public void setDescription(String newDescription) {
-
+        this.description = newDescription;
     }
 
 
     public Point getXyLocation() {
-        return this.Xylocation;
+        return this.xyLocation;
     }
 
 
     public void setXyLocation(Point newXyLocation) {
-      this.Xylocation = newXyLocation;
+        this.xyLocation = newXyLocation;
     }
 
 
     public Room getCurrentRoom() {
-        return (this.current_room);
+        return (this.currentRoom);
 
     }
 
 
     public void setCurrentRoom(Room newCurrentRoom) {
-      this.current_room = newCurrentRoom;
+        this.currentRoom = newCurrentRoom;
     }
 }
