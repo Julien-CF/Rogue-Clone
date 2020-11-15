@@ -1,217 +1,179 @@
 package rogue;
 
 import java.util.ArrayList;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 import java.awt.Point;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.HashMap;
 
 
 
-public class Rogue{
+public class Rogue {
 
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
-    private HashMap<String,String> loot = new HashMap<>();
+    private HashMap<String, String> loot = new HashMap<>();
 
+    private RogueParser rogueParser;
 
-    public void setPlayer(Player thePlayer){
-
+    /**
+    * initializes rogueParser.
+    * @param filename the name of the file tp parse from
+    */
+    public void parse(String filename) {
+      RogueParser temp = new RogueParser(filename);
+      rogueParser = temp;
     }
 
 
-    public void setSymbols(String filename){
+    /**
+    * parse the symbols to be used in the program from a specified file.
+    * @return Hashmap containing the symbols
+    */
+    public HashMap<String, Character> setSymbols() {
+      HashMap<String, Character> symbols = new HashMap<>();
 
+      symbols.put("PASSAGE", rogueParser.getSymbol("PASSAGE"));
+      symbols.put("DOOR", rogueParser.getSymbol("DOOR"));
+      symbols.put("FLOOR", rogueParser.getSymbol("FLOOR"));
+      symbols.put("PLAYER", rogueParser.getSymbol("PLAYER"));
+      symbols.put("ITEM", rogueParser.getSymbol("ITEM"));
+      symbols.put("NS_WALL", rogueParser.getSymbol("NS_WALL"));
+      symbols.put("EW_WALL", rogueParser.getSymbol("EW_WALL"));
 
-        try {
-
-            JSONParser parser = new JSONParser();
-            Object symObj = parser.parse(new FileReader(filename));
-            JSONObject symbolObject = (JSONObject) symObj;
-
-            JSONArray symbolArray = (JSONArray) symbolObject.get("symbols");
-            Iterator symbolIterator = symbolArray.iterator();
-
-        while(symbolIterator.hasNext()) {
-
-            JSONObject currentSymbol = (JSONObject) symbolIterator.next();
-
-            String name = (String) currentSymbol.get("name");
-            String symbol = (String) currentSymbol.get("symbol");
-
-            this.loot.put(name,symbol);
-
-        }
-
-      } catch(FileNotFoundException e) {
-          e.printStackTrace();
-      } catch (IOException e) {
-          e.printStackTrace();
-      } catch (ParseException e) {
-          e.printStackTrace();
-      }
-
+      return (symbols);
     }
 
-    public void setItems(String filename){
-        try {
-
-            JSONParser parser = new JSONParser();
-            Object itemObj = parser.parse(new FileReader(filename));
-            JSONObject itemObject = (JSONObject) itemObj;
-
-            JSONArray itemArray = (JSONArray) itemObject.get("items");
-            Iterator itemIterator = itemArray.iterator();
-
-            while(itemIterator.hasNext()) {
-
-                JSONObject currentObject = (JSONObject) itemIterator.next();
-
-                Item currentItem = new Item();
-
-                currentItem.setId( (int)(long) currentObject.get("id") );
-                currentItem.setType( (String) currentObject.get("type") );
-                currentItem.setName( (String) currentObject.get("name") );
-
-                this.itemList.add(currentItem);
-            }
-
-        } catch(FileNotFoundException e) {
-              e.printStackTrace();
-        } catch (IOException e) {
-              e.printStackTrace();
-        } catch (ParseException e) {
-              e.printStackTrace();
-        }
-    }
-
-    public ArrayList<Room> getRooms(){
+    /**
+    * getter for the list of rooms stored in the array list.
+    * @return returns the list of rooms
+    */
+    public ArrayList<Room> getRooms() {
         return this.roomList;
     }
 
-    public ArrayList<Item> getItems(){
+    /**
+    * getter for the list of items.
+    * @return the list of items ot be placed in the rooms
+    */
+    public ArrayList<Item> getItems() {
         return (this.itemList);
 
     }
-    public Player getPlayer(){
+
+    /**
+    * getter for the player.
+    * @return the player
+    */
+    public Player getPlayer() {
         return null;
     }
 
+    /**
+    * setter for the player in the rogue.
+    * @param thePlayer
+    */
+    public void setPlayer(Player thePlayer) {
 
-    public ArrayList<Item> createLootList(JSONArray lootArray){
-
-        ArrayList<Item> lootList = new ArrayList<Item>();
-        Iterator lootIterator = lootArray.iterator();
-
-        while(lootIterator.hasNext()){
-            JSONObject currentLoot = (JSONObject) lootIterator.next();
-
-            Item currentItem = new Item();
-
-            currentItem.setId( (int)(long) currentLoot.get("id") );
-            Point loot_pos = new Point( (int)(long) currentLoot.get("x"), (int)(long) currentLoot.get("y") );
-            currentItem.setXyLocation(loot_pos);
-
-            for(int i = 0; i < this.itemList.size(); i++){
-                Item temp = (Item) this.itemList.get(i);
-
-                if(temp.getId() == currentItem.getId()){
-                    currentItem.setName(temp.getName());
-                    currentItem.setType(temp.getType());
-                }
-            }
-
-            lootList.add(currentItem);
-        }
-        return(lootList);
     }
 
-    public void createRooms(String filename){
+    /**
+    * create all of the items that are to be stored in the rooms.
+    * @param newRoom the room you want to create the list of loot for
+    * @return a list of all the loot in the room
+    */
+    public ArrayList<Item> createLootList(Room newRoom) {
 
-        try {
-            setItems(filename);
+        ArrayList<Item> lootList = new ArrayList<Item>();
+        Map<String, String> itemMap;
+        for (int i = 0; i < rogueParser.getNumOfItems(); i++) {
+          itemMap = rogueParser.nextItem();
+          if (newRoom.getId() == Integer.parseInt(itemMap.get("room"))) {
+            Item newItem = buildItem(itemMap, newRoom);
+            lootList.add(newItem);
+          }
+        }
+        itemMap = rogueParser.nextItem();
 
-            JSONParser parser = new JSONParser();
-            Object obj2 = parser.parse(new FileReader(filename));
-            JSONObject roomObject = (JSONObject) obj2;
+        return (lootList);
+    }
 
-            JSONArray roomArray = (JSONArray) roomObject.get("room");
-            Iterator roomIterator = roomArray.iterator();
+    /**
+    * Function used to build an item with all the elements it needs.
+    * @param itemMap a map that contains all the information to be stored
+    * @param currentRoom the room the item will be put in
+    * @return newItem retuns the newly created item
+    */
+    public Item buildItem(Map<String, String> itemMap, Room currentRoom) {
+      Item newItem = new Item();
+      Point xylocation = new Point(Integer.parseInt(itemMap.get("x")), Integer.parseInt(itemMap.get("y")));
+      newItem.setXyLocation(xylocation);
+      newItem.setCurrentRoom(currentRoom);
+      newItem.setId(Integer.parseInt(itemMap.get("id")));
+      newItem.setName(itemMap.get("name"));
+      newItem.setType(itemMap.get("type"));
 
+      return (newItem);
+    }
+
+    /**
+    * create the rooms parsed from a specific file.
+    */
+    public void createRooms() {
+            Map<String, String> roomMap;
             Player player = new Player("Default");
-
-            while(roomIterator.hasNext()) {
-                JSONObject currentRoom = (JSONObject) roomIterator.next();
-
+            while ((roomMap = rogueParser.nextRoom()) != null) {
                 Room newRoom = new Room();
-
-                int id = (int)(long) currentRoom.get("id");
+                int id = Integer.parseInt(roomMap.get("id"));
                 newRoom.setId(id);
-
-                int height = (int)(long) currentRoom.get("height");
+                int height = Integer.parseInt(roomMap.get("height"));
                 newRoom.setHeight(height);
-
-                int width = (int)(long) currentRoom.get("width");
+                int width = Integer.parseInt(roomMap.get("width"));
                 newRoom.setWidth(width);
+                boolean inRoom = checkTrue(roomMap.get("start"));
+                newRoom.setInRoom(inRoom);
+                addRooms(roomMap, newRoom);
 
-                boolean inRoom = (boolean) currentRoom.get("start");
-                newRoom.setIn_room(inRoom);
+                newRoom.setSymbol(setSymbols());
 
-                JSONArray doorArray = (JSONArray) currentRoom.get("doors");
-                Iterator doorIterator = doorArray.iterator();
-
-                while(doorIterator.hasNext()){
-
-                    JSONObject currentDoor = (JSONObject) doorIterator.next();
-
-                    String direction = (String) currentDoor.get("dir");
-
-                    int location = (int)(long) currentDoor.get("id");
-
-                    newRoom.setDoor(direction,location);
-
-                }
-
-                newRoom.setSymbol(this.loot);
-
-                if(newRoom.isPlayerInRoom() == true){
-                    Point playerLocation = new Point(1,1);
+                if (newRoom.isPlayerInRoom()) {
+                    Point playerLocation = new Point(1, 1);
                     player.setXyLocation(playerLocation);
                     player.setCurrentRoom(newRoom);
                     newRoom.setPlayer(player);
                 }
 
-                JSONArray lootArray = (JSONArray) currentRoom.get("loot");
-                ArrayList<Item> finalLootList = createLootList(lootArray);
+                ArrayList<Item> finalLootList = createLootList(newRoom);
                 newRoom.setRoomItems(finalLootList);
-
                 this.roomList.add(newRoom);
-
-
             }
+    }
 
-        } catch(FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    void addRooms(Map<String, String> doors, Room newRoom) {
+      int id = Integer.parseInt(doors.get("N"));
+        newRoom.setDoor("N", id);
+      id = Integer.parseInt(doors.get("W"));
+        newRoom.setDoor("W", id);
+      id = Integer.parseInt(doors.get("E"));
+        newRoom.setDoor("E", id);
+      id = Integer.parseInt(doors.get("S"));
+        newRoom.setDoor("S", id);
+    }
+
+    boolean checkTrue(String str) {
+      if (str.equals("true")) {
+        return (true);
+      }
+      return (false);
     }
 
     //creates a string that displays all the rooms in the dungeon
-    public String displayAll(){
+    /**
+    * function to display the rooms as a string of characters.
+    * @return the string of all the rooms
+    */
+    public String displayAll() {
         String rooms = "";
-        for(int i = 0; i < this.roomList.size(); i++){
+        for (int i = 0; i < this.roomList.size(); i++) {
             rooms = rooms + this.roomList.get(i).displayRoom();
         }
         System.out.println(rooms);

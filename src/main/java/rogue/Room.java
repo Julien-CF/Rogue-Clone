@@ -1,6 +1,6 @@
 package rogue;
 import java.util.ArrayList;
-import java.util.Map;
+
 import java.awt.Point;
 import java.util.HashMap;
 
@@ -15,173 +15,247 @@ public class Room  {
     private int height;
     private int width;
     private ArrayList<Item> lootList = new ArrayList<Item>();
-    private HashMap<String,Integer> door = new HashMap<>();
-    private HashMap<String,String> symbols = new HashMap<>();
+    private HashMap<String, Integer> door = new HashMap<>();
+    private HashMap<String, Character> symbols = new HashMap<>();
     private boolean inRoom = false;
     private Player player;
 
     // Default constructor
+    /**
+    * constructor for the door initializes a null door object.
+    */
     public Room() {
 
     }
 
 
     // Required getter and setters below
-    public void setSymbol(HashMap<String,String> symbol){
+    /**
+    * setter for the symbol map.
+    * @param symbol hashmap for the symbols in the room
+    */
+    public void setSymbol(HashMap<String, Character> symbol) {
         this.symbols = symbol;
     }
 
-    public void setIn_room(boolean newInRoom){
+    /**
+    * setter for if the player is in the room.
+    * @param newInRoom boolean for if player is in room or not
+    */
+    public void setInRoom(boolean newInRoom) {
         this.inRoom = newInRoom;
     }
 
-    public boolean getIn_Room(){
+    /**
+    * getter for if the player is in the room.
+    * @return boolean of if player is in the room
+    */
+    public boolean getInRoom() {
         return (this.inRoom);
     }
 
+    /**
+    * getter for the width of the room.
+    * @return width of the room
+    */
     public int getWidth() {
         return (this.width);
     }
 
+    /**
+    * setter for the width of the map.
+    * @param newWidth the new width for the room
+    */
     public void setWidth(int newWidth) {
         this.width = newWidth;
     }
 
+    /**
+    * getter for the height of the room.
+    * @return height of the room
+    */
     public int getHeight() {
         return (this.height);
     }
 
+    /**
+    * setter for the height of the room.
+    * @param newHeight new height for the room
+    */
     public void setHeight(int newHeight) {
         this.height = newHeight;
     }
 
+    /**
+    * getter for the id of the room.
+    * @return the id of the room
+    */
     public int getId() {
         return (this.id);
     }
 
+    /**
+    * setter for the id of the room.
+    * @param newId new id of the room
+    */
     public void setId(int newId) {
         this.id = newId;
     }
 
+    /**
+    * getter for the list of items in the room.
+    * @return ArrayList of the items in the room
+    */
     public ArrayList<Item> getRoomItems() {
         return (this.lootList);
     }
 
+    /**
+    * setter for the list of items in the room.
+    * @param newRoomItems array list of items to be placed in the room
+    */
     public void setRoomItems(ArrayList<Item> newRoomItems) {
         this.lootList = newRoomItems;
     }
 
+    /**
+    * getter for the player..
+    * @return the player
+    */
     public Player getPlayer() {
         return this.player;
     }
 
+    /**
+    * setter for the player.
+    * @param newPlayer the player object
+    */
     public void setPlayer(Player newPlayer) {
         this.player = newPlayer;
     }
 
-    public int getDoor(String direction){
+    /**
+    * getter for a door specified by the directon if it does not exist return -1.
+    * @param direction direction of the door we are looking for
+    * @return an the id of the door
+    */
+    public int getDoor(String direction) {
         int i;
-        if(this.door.get(direction) == null){
+        if (this.door.get(direction) == null) {
             i = -1;
-        }
-        else{
+        } else {
             i = this.door.get(direction);
         }
-        return (i) ;
+        return (i);
     }
-    /*
-    direction is one of NSEW
-    location is a number between 0 and the length of the wall
-    */
 
-    public void setDoor(String direction, int location){
+    /**
+    * @param direction is one of NSEW.
+    * @param location is a number between 0 and the length of the wall
+    */
+    public void setDoor(String direction, int location) {
         this.door.put(direction, location);
     }
 
+    /**
+    * verify if the player is in the room.
+    * @return boolean if the player is in the room or not
+    */
     public boolean isPlayerInRoom() {
         return (this.inRoom);
     }
 
-    public String createNS(String dir){
+    /**
+    * creates the roof or floor dependent on the direction given.
+    * @param dir either N for north or S for south
+    * @return a string of either the roof or the floor
+    */
+    public String createNS(String dir) {
         int doorPos = getDoor(dir);
-        String North = "";
-        String roof = this.symbols.get("NS_WALL");
+        String north = "";
+        String roof = Character.toString(this.symbols.get("NS_WALL"));
 
-        for(int i = 0; i < getWidth(); i++){
-            if(i == doorPos){
-                North = North + this.symbols.get("DOOR");
-            }
-            else{
-                North = North + roof;
+        for (int i = 0; i < getWidth(); i++) {
+            if (i == doorPos) {
+                north = north + this.symbols.get("DOOR");
+            } else {
+                north = north + roof;
             }
         }
-        North = North + "\n";
-        return(North);
+        north = north + "\n";
+        return (north);
     }
 
-    public boolean itemIsThere( int i, int j){
+    /**
+    * verifies if a specific item is in the position of the room.
+    * @param i the y axis of the room
+    * @param j the x axis of the room
+    * @return boolean if the item exists in the room
+    */
+    public boolean itemIsThere(int i, int j) {
         boolean test = false;
         ArrayList<Item> temp = getRoomItems();
-        for(int t = 0; t < temp.size(); t++){
+        for (int t = 0; t < temp.size(); t++) {
 
             Item tempI = temp.get(t);
             Point tempP = tempI.getXyLocation();
             int x = (int) tempP.getX();
             int y = (int) tempP.getY();
-            if(j == x && i == y){
+            if (j == x && i == y) {
                 test = true;
             }
 
         }
-        return(test);
+        return (test);
     }
 
-    public String createContent(){
+    /**
+    * creates the content of the room everything but the roof and the floor.
+    * @return a string containing the content of the room
+    */
+    public String createContent() {
 
         String content = "";
-        String wall = this.symbols.get("EW_WALL");
-        String floor = this.symbols.get("FLOOR");
+        String wall = Character.toString(this.symbols.get("EW_WALL"));
+        String floor = Character.toString(this.symbols.get("FLOOR"));
         int doorPosW = getDoor("W");
         int doorPosE = getDoor("E");
-        Point playerPos = new Point(-1,-1);
+        Point playerPos = new Point(-1, -1);
 
-        if(isPlayerInRoom() == true){
+        if (isPlayerInRoom()) {
             playerPos = this.player.getXyLocation();
         }
 
-        for(int i = 1; i < getHeight() - 1; i++){
+        for (int i = 1; i < getHeight() - 1; i++) {
 
-            if(i == doorPosW){
+            if (i == doorPosW) {
                 content = content + this.symbols.get("DOOR");
-            }
-            else{
+            } else {
                 content = content + wall;
             }
-            for(int j = 1; j < getWidth() -1; j++){
-                if(j == playerPos.getX() && i == playerPos.getY()){
+            for (int j = 1; j < getWidth() - 1; j++) {
+                if (j == playerPos.getX() && i == playerPos.getY()) {
                     content = content + this.symbols.get("PLAYER");
-                }
-                else if(itemIsThere(i, j) == true ){
+                } else if (itemIsThere(i, j)) {
                     content = content + this.symbols.get("ITEM");
-                }
-                else{
+                } else {
                     content = content + floor;
                 }
             }
-            if(i == doorPosE){
+            if (i == doorPosE) {
                 content = content + this.symbols.get("DOOR");
-            }
-            else{
+            } else {
                 content = content + wall;
             }
 
             content = content + "\n";
         }
-        return(content);
+        return (content);
     }
+
     /**
-    * Produces a string that can be printed to produce an ascii rendering of the room and all of its contents
-    * @return (String) String representation of how the room looks
+    * Produces a string that can be printed to produce an ascii rendering of the room and all of its contents.
+    * @return map, String representation of how the room looks
     */
     public String displayRoom() {
         String map = "";
