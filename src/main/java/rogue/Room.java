@@ -266,4 +266,23 @@ public class Room  {
 
         return (map);
     }
+
+    public void addItem(Item toAdd) throws ImpossiblePositionException{
+      if(toAdd.getXyLocation().getX() <= 0 || toAdd.getXyLocation().getY() <= 0 || toAdd.getXyLocation().getY() >= getHeight() - 1 || toAdd.getXyLocation().getX() >= getWidth() - 1 ){
+        System.out.println("Item out of bounds");
+        throw new ImpossiblePositionException();
+      } else if(isPlayerInRoom() && (toAdd.getXyLocation().getX() == player.getXyLocation().getX() && toAdd.getXyLocation().getY() == player.getXyLocation().getY())){
+        System.out.println("cant place here player in way");
+        throw new ImpossiblePositionException();
+      } else{
+        System.out.println(this.lootList.size());
+        for(int i = 0; i < lootList.size(); i++){
+          if(toAdd.getXyLocation().getX() == lootList.get(i).getXyLocation().getX() && toAdd.getXyLocation().getY() == lootList.get(i).getXyLocation().getY()){
+            System.out.println("theres an item already here");
+            throw new ImpossiblePositionException();
+          }
+        }
+      }
+    }
+
 }
