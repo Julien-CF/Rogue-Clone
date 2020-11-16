@@ -11,36 +11,52 @@ public class Rogue {
 
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
-    private HashMap<String, String> loot = new HashMap<>();
-
     private RogueParser rogueParser;
     private Player player = new Player("Default");
+    private HashMap<String, Character> symbols = new HashMap<>();
     /**
     * initializes rogueParser.
     * @param filename the name of the file tp parse from
     */
-    public void parse(String filename) {
-      RogueParser temp = new RogueParser(filename);
-      rogueParser = temp;
+    public Rogue(RogueParser theDungeonInfo) {
+        Map<String, String> roomMap;
+        Map<String, String> itemMap;
+        setSymbols(theDungeonInfo);
+        while ((roomMap = theDungeonInfo.nextRoom()) != null) {
+          addRoom(roomMap);
+        }
+        while((itemMap = theDungeonInfo.nextItem()) != null){
+          addItem(itemMap);
+        }
+        // for(int i = 0; i < itemList.size(); i++){
+        //   System.out.println(itemList.get(i).getName());
+        // }
+        displayAll();
     }
 
-
+    public void addItem(Map<String, String> toAdd){
+      int roomIndex = Integer.parseInt(toAdd.get("room"))-1;
+      Item newItem = buildItem(toAdd, roomList.get(roomIndex));
+      newItem = verifyItem(newItem, roomList.get(roomIndex));
+      if(newItem != null){
+        itemList.add(newItem);
+        roomList.get(roomIndex).addNewItem(newItem);
+      }
+    }
     /**
     * parse the symbols to be used in the program from a specified file.
     * @return Hashmap containing the symbols
     */
-    public HashMap<String, Character> setSymbols() {
+    public void setSymbols(RogueParser rogueParser) {
       HashMap<String, Character> symbols = new HashMap<>();
 
-      symbols.put("PASSAGE", rogueParser.getSymbol("PASSAGE"));
-      symbols.put("DOOR", rogueParser.getSymbol("DOOR"));
-      symbols.put("FLOOR", rogueParser.getSymbol("FLOOR"));
-      symbols.put("PLAYER", rogueParser.getSymbol("PLAYER"));
-      symbols.put("ITEM", rogueParser.getSymbol("ITEM"));
-      symbols.put("NS_WALL", rogueParser.getSymbol("NS_WALL"));
-      symbols.put("EW_WALL", rogueParser.getSymbol("EW_WALL"));
-
-      return (symbols);
+      this.symbols.put("PASSAGE", rogueParser.getSymbol("PASSAGE"));
+      this.symbols.put("DOOR", rogueParser.getSymbol("DOOR"));
+      this.symbols.put("FLOOR", rogueParser.getSymbol("FLOOR"));
+      this.symbols.put("PLAYER", rogueParser.getSymbol("PLAYER"));
+      this.symbols.put("ITEM", rogueParser.getSymbol("ITEM"));
+      this.symbols.put("NS_WALL", rogueParser.getSymbol("NS_WALL"));
+      this.symbols.put("EW_WALL", rogueParser.getSymbol("EW_WALL"));
     }
 
     /**
@@ -76,34 +92,17 @@ public class Rogue {
 
     }
 
-    /**
-    * create all of the items that are to be stored in the rooms.
-    * @param newRoom the room you want to create the list of loot for
-    * @return a list of all the loot in the room
-    */
-    public void createLootList(Room newRoom) {
-
-        ArrayList<Item> lootList = new ArrayList<Item>();
-        Map<String, String> itemMap;
-        for (int i = 0; i < rogueParser.getNumOfItems(); i++) {
-          itemMap = rogueParser.nextItem();
-          if (newRoom.getId() == Integer.parseInt(itemMap.get("room"))) {
-            Item newItem = buildItem(itemMap, newRoom);
-            newItem = verifyItem(newItem, newRoom);
-            lootList.add(newItem);
-            newRoom.setRoomItems(lootList);
-          }
-        }
-        itemMap = rogueParser.nextItem();
-
-    }
 
     public Item verifyItem(Item item, Room room){
       try{
         room.addItem(item);
+      } catch(NoSuchItemException a){
+        item = null;
+        return(item);
       } catch(ImpossiblePositionException e){
         item = rebuildItem(item, room);
       }
+
       return(item);
     }
 
@@ -114,13 +113,11 @@ public class Rogue {
           item.setXyLocation(newPoint);
           try{
             room.addItem(item);
-            System.out.println("Item replaced at : " + j + " " + i);
             i = room.getHeight();
             break;
 
           } catch (ImpossiblePositionException e){
-            System.out.println("Item cant be replaced at : " + j + " " + i);
-
+          } catch (NoSuchItemException a){
           }
         }
       }
@@ -145,35 +142,33 @@ public class Rogue {
       return (newItem);
     }
 
+    public void addRoom(Map<String, String> toAdd){
+      Room newRoom = new Room();
+      int id = Integer.parseInt(toAdd.get("id"));
+      newRoom.setId(id);
+      int height = Integer.parseInt(toAdd.get("height"));
+      newRoom.setHeight(height);
+      int width = Integer.parseInt(toAdd.get("width"));
+      newRoom.setWidth(width);
+      boolean inRoom = checkTrue(toAdd.get("start"));
+      newRoom.setInRoom(inRoom);
+      addDoors(toAdd, newRoom);
+      newRoom.setSymbol(this.symbols);
+      if (newRoom.isPlayerInRoom()) {
+          Point playerLocation = new Point(1, 1);
+          player.setXyLocation(playerLocation);
+          player.setCurrentRoom(newRoom);
+          newRoom.setPlayer(player);
+      }
+      this.roomList.add(newRoom);
+    }
+
+
     /**
     * create the rooms parsed from a specific file.
     */
     public void createRooms() {
-            Map<String, String> roomMap;
-            while ((roomMap = rogueParser.nextRoom()) != null) {
-                Room newRoom = new Room();
-                int id = Integer.parseInt(roomMap.get("id"));
-                newRoom.setId(id);
-                int height = Integer.parseInt(roomMap.get("height"));
-                newRoom.setHeight(height);
-                int width = Integer.parseInt(roomMap.get("width"));
-                newRoom.setWidth(width);
-                boolean inRoom = checkTrue(roomMap.get("start"));
-                newRoom.setInRoom(inRoom);
-                addDoors(roomMap, newRoom);
 
-                newRoom.setSymbol(setSymbols());
-
-                if (newRoom.isPlayerInRoom()) {
-                    Point playerLocation = new Point(1, 1);
-                    player.setXyLocation(playerLocation);
-                    player.setCurrentRoom(newRoom);
-                    newRoom.setPlayer(player);
-                }
-
-                createLootList(newRoom);
-                this.roomList.add(newRoom);
-            }
     }
 
     void addDoors(Map<String, String> doors, Room newRoom) {
