@@ -5,9 +5,16 @@
             "height": 10,
             "width": 20,
             "doors": [{
-                "dir": "W",
-                "id": 2
-            }],
+                  "dir": "N",
+                  "con_room": 2,
+                  "wall_pos": 3
+                },
+                {
+                  "dir": "S",
+                  "con_room": 2,
+                  "wall_pos": 3
+                }
+          ],
             "loot": [{
                     "id": 2,
                     "x": 2,
@@ -26,12 +33,14 @@
             "height": 10,
             "width": 20,
             "doors": [{
-                    "dir": "N",
-                    "id": 1
+                  "dir": "N",
+                  "con_room": 1,
+                  "wall_pos": 1
                 },
                 {
-                    "dir": "S",
-                    "id": 6
+                  "dir": "S",
+                  "con_room": 1,
+                  "wall_pos": 6
                 }
             ],
             "loot": [{

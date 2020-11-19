@@ -10,6 +10,8 @@ rogue/Player.java
  rogue.Player
 rogue/ImpossiblePositionException.java
  rogue.ImpossiblePositionException
+rogue/Door.java
+ rogue.Door
 rogue/A1Solution.java
  rogue.A1Solution
 rogue/Rogue.java

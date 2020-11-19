@@ -15,7 +15,7 @@ public class Room  {
     private int height;
     private int width;
     private ArrayList<Item> lootList = new ArrayList<Item>();
-    private HashMap<String, Integer> door = new HashMap<>();
+    private HashMap<String, Door> door = new HashMap<>();
     private HashMap<String, Character> symbols = new HashMap<>();
     private boolean inRoom = false;
     private Player player;
@@ -148,17 +148,22 @@ public class Room  {
         if (this.door.get(direction) == null) {
             i = -1;
         } else {
-            i = this.door.get(direction);
+            Door temp = this.door.get(direction);
+            i = temp.getWallLoc();
         }
         return (i);
+    }
+
+    public void finishDoor(String dir, Room conRoom){
+
     }
 
     /**
     * @param direction is one of NSEW.
     * @param location is a number between 0 and the length of the wall
     */
-    public void setDoor(String direction, int location) {
-        this.door.put(direction, location);
+    public void setDoor(String direction, Door newDoor) {
+        this.door.put(direction, newDoor);
     }
 
     /**

@@ -11,6 +11,7 @@ public class Rogue {
 
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
+    private ArrayList<Door> doorList = new ArrayList<Door>();
     private RogueParser rogueParser;
     private Player player = new Player("Default");
     private HashMap<String, Character> symbols = new HashMap<>();
@@ -25,13 +26,74 @@ public class Rogue {
         while ((roomMap = theDungeonInfo.nextRoom()) != null) {
           addRoom(roomMap);
         }
+        addDoors(theDungeonInfo);
+        placeDoors();
         while((itemMap = theDungeonInfo.nextItem()) != null){
           addItem(itemMap);
         }
-        // for(int i = 0; i < itemList.size(); i++){
-        //   System.out.println(itemList.get(i).getName());
-        // }
         displayAll();
+    }
+
+    public void addDoors(RogueParser theDungeonInfo){
+      ArrayList<Map<String, String>> door = theDungeonInfo.getDoors();
+      for(int i = 0; i < door.size(); i++){
+        Map<String, String> currentDoor = door.get(i);
+        Door newDoor = buildDoor(currentDoor);
+        doorList.add(newDoor);
+      }
+      linkDoors();
+    }
+
+    public void placeDoors(){
+      for(int i = 0; i < roomList.size(); i++){
+        for(int j = 0; j < doorList.size(); j++){
+          if(roomList.get(i).getId() == doorList.get(j).getCurRoom()){
+            System.out.println("this fits here good sir");
+            roomList.get(i).setDoor(doorList.get(j).getWall(), doorList.get(j));
+          }
+        }
+      }
+    }
+
+    public void linkDoors(){
+      for(int i = 0; i < doorList.size(); i++){
+        for(int j = 0; j < doorList.size(); j++){
+          String oppWall = oppositeWall(doorList.get(i).getWall());
+          if((doorList.get(i).getConRoom() == doorList.get(j).getCurRoom()) && (oppWall.equals(doorList.get(j).getWall()))){
+            doorList.get(i).setExitDoor(doorList.get(j));
+          }
+        }
+      }
+    }
+
+    public String oppositeWall(String wall){
+      if(wall.equals("N")){
+        return("S");
+      } else if (wall.equals("S")){
+        return("N");
+      } else if(wall.equals("E")){
+        return("W");
+      } else if(wall.equals("W")){
+        return("E");
+      }
+      return(null);
+    }
+
+    public Door buildDoor(Map<String, String> door){
+      Door newDoor = new Door();
+      newDoor.setCurRoom(Integer.parseInt(door.get("curRoom")));
+      newDoor.setConRoom(Integer.parseInt(door.get("con_room")));
+      newDoor.setWall(door.get("dir"));
+      newDoor.setWallLoc(Integer.parseInt(door.get("wall_pos")));
+
+      for(int i = 0; i < roomList.size(); i++){
+        if(roomList.get(i).getId() == newDoor.getCurRoom()){
+          newDoor.ConnectRoom(roomList.get(i));
+        } else if (roomList.get(i).getId() == newDoor.getConRoom()) {
+          newDoor.ConnectRoom(roomList.get(i));
+        }
+      }
+      return(newDoor);
     }
 
     public void addItem(Map<String, String> toAdd){
@@ -152,7 +214,6 @@ public class Rogue {
       newRoom.setWidth(width);
       boolean inRoom = checkTrue(toAdd.get("start"));
       newRoom.setInRoom(inRoom);
-      addDoors(toAdd, newRoom);
       newRoom.setSymbol(this.symbols);
       if (newRoom.isPlayerInRoom()) {
           Point playerLocation = new Point(1, 1);
@@ -161,25 +222,6 @@ public class Rogue {
           newRoom.setPlayer(player);
       }
       this.roomList.add(newRoom);
-    }
-
-
-    /**
-    * create the rooms parsed from a specific file.
-    */
-    public void createRooms() {
-
-    }
-
-    void addDoors(Map<String, String> doors, Room newRoom) {
-      int id = Integer.parseInt(doors.get("N"));
-        newRoom.setDoor("N", id);
-      id = Integer.parseInt(doors.get("W"));
-        newRoom.setDoor("W", id);
-      id = Integer.parseInt(doors.get("E"));
-        newRoom.setDoor("E", id);
-      id = Integer.parseInt(doors.get("S"));
-        newRoom.setDoor("S", id);
     }
 
     boolean checkTrue(String str) {

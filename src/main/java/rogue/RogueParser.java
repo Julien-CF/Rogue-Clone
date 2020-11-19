@@ -19,6 +19,7 @@ public class RogueParser {
     private ArrayList<Map<String, String>> rooms = new ArrayList<>();
     private ArrayList<Map<String, String>> items = new ArrayList<>();
     private ArrayList<Map<String, String>> itemLocations = new ArrayList<>();
+    private ArrayList<Map<String, String>> doorList = new ArrayList<>();
     private HashMap<String, Character> symbols = new HashMap<>();
 
     private Iterator<Map<String, String>> roomIterator;
@@ -47,6 +48,11 @@ public class RogueParser {
      * Return the next room.
      * @return (Map) Information about a room
      */
+
+    public ArrayList<Map<String, String>> getDoors(){
+      return(this.doorList);
+    }
+    
     public Map nextRoom() {
 
         if (roomIterator.hasNext()) {
@@ -193,18 +199,17 @@ public class RogueParser {
         room.put("height", roomJSON.get("height").toString());
         room.put("width", roomJSON.get("width").toString());
 
-        // Cheap way of making sure all 4 directions have a sentinel value in the map
-        room.put("E", "-1");
-        room.put("N", "-1");
-        room.put("S", "-1");
-        room.put("W", "-1");
-
         // Update the map with any doors in the room
         JSONArray doorArray = (JSONArray) roomJSON.get("doors");
         for (int j = 0; j < doorArray.size(); j++) {
+            HashMap<String, String> newDoor = new HashMap<>();
             JSONObject doorObj = (JSONObject) doorArray.get(j);
-            String dir = String.valueOf(doorObj.get("dir"));
-            room.replace(dir, doorObj.get("id").toString());
+            String wallPos = doorObj.get("wall_pos").toString();
+            newDoor.put("dir", String.valueOf(doorObj.get("dir")));
+            newDoor.put("curRoom", roomJSON.get("id").toString());
+            newDoor.put("con_room", doorObj.get("con_room").toString());
+            newDoor.put("wall_pos", doorObj.get("wall_pos").toString());
+            doorList.add(newDoor);
         }
 
         JSONArray lootArray = (JSONArray) roomJSON.get("loot");
