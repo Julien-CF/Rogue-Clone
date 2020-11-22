@@ -14,7 +14,11 @@ rogue/Door.java
  rogue.Door
 rogue/Room.java
  rogue.Room
+rogue/InvalidMoveException.java
+ rogue.InvalidMoveException
 rogue/NotEnoughDoorsException.java
  rogue.NotEnoughDoorsException
 rogue/Rogue.java
  rogue.Rogue
+rogue/WindowUI.java
+ rogue.WindowUI

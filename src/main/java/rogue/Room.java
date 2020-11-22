@@ -28,6 +28,14 @@ public class Room  {
 
     }
 
+    public Door getFullDoor(String direction){
+      if (this.door.get(direction) == null) {
+          return(null);
+      }
+      Door temp = this.door.get(direction);
+      return (temp);
+    }
+
 
     // Required getter and setters below
     /**
@@ -154,9 +162,6 @@ public class Room  {
         return (i);
     }
 
-    public void finishDoor(String dir, Room conRoom){
-
-    }
 
     /**
     * @param direction is one of NSEW.
