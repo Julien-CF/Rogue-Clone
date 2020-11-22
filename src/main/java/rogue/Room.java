@@ -201,8 +201,7 @@ public class Room  {
     * @param j the x axis of the room
     * @return boolean if the item exists in the room
     */
-    public boolean itemIsThere(int i, int j) {
-        boolean test = false;
+    public String itemIsThere(int i, int j) {
         ArrayList<Item> temp = getRoomItems();
         for (int t = 0; t < temp.size(); t++) {
 
@@ -211,11 +210,11 @@ public class Room  {
             int x = (int) tempP.getX();
             int y = (int) tempP.getY();
             if (j == x && i == y) {
-                test = true;
+                return(tempI.getType().toUpperCase());
             }
 
         }
-        return (test);
+        return ("FLOOR");
     }
 
     /**
@@ -245,10 +244,9 @@ public class Room  {
             for (int j = 1; j < getWidth() - 1; j++) {
                 if (j == playerPos.getX() && i == playerPos.getY()) {
                     content = content + this.symbols.get("PLAYER");
-                } else if (itemIsThere(i, j)) {
-                    content = content + this.symbols.get("ITEM");
                 } else {
-                    content = content + floor;
+                  // System.out.println(itemIsThere(i,j));
+                  content = content + this.symbols.get(itemIsThere(i , j));
                 }
             }
             if (i == doorPosE) {
@@ -291,6 +289,13 @@ public class Room  {
           }
         }
       }
+    }
+
+    public boolean verifyRoom() throws NotEnoughDoorsException{
+      if(door.isEmpty()){
+        throw new NotEnoughDoorsException();
+      }
+      return(true);
     }
 
 }

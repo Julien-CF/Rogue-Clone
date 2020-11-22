@@ -52,7 +52,7 @@ public class RogueParser {
     public ArrayList<Map<String, String>> getDoors(){
       return(this.doorList);
     }
-    
+
     public Map nextRoom() {
 
         if (roomIterator.hasNext()) {
@@ -253,6 +253,7 @@ public class RogueParser {
               if (itemLocations.get(j).get("id").toString().equals(itemsJSON.get("id").toString())) {
                 itemLocations.get(j).put("name", itemsJSON.get("name").toString());
                 itemLocations.get(j).put("type", itemsJSON.get("type").toString());
+                itemLocations.get(j).put("description", itemsJSON.get("description").toString());
               }
           }
         }

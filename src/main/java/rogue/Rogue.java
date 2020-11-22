@@ -28,10 +28,88 @@ public class Rogue {
         }
         addDoors(theDungeonInfo);
         placeDoors();
+        for(int i = 0; i < roomList.size(); i++){
+          checkRoom(roomList.get(i), i);
+        }
         while((itemMap = theDungeonInfo.nextItem()) != null){
           addItem(itemMap);
         }
         displayAll();
+    }
+
+    public void checkRoom(Room r, int index){
+      try{
+        for(int i = 0; i < roomList.size(); i++){
+          r.verifyRoom();
+        }
+      } catch (NotEnoughDoorsException e) {
+        fixRoom(r, index);
+      }
+    }
+
+    public int fixRoom(Room r, int index){
+      for(int i = 0; i < roomList.size(); i++){
+        String wall = openWall(roomList.get(i));
+        if(wall != null){
+          String oppWall = oppositeWall(wall);
+          newConnection(r, roomList.get(i), oppWall, wall, index, i);
+          return(1);
+        }
+      }
+      System.out.println("dungeon file cannot be used");
+      System.exit(-1);
+      return(-1);
+    }
+
+    public void newConnection(Room currentRoom, Room conRoom, String currentRoomWall, String connectedRoomWall, int currentRoomIndex, int connectedRoomIndex){
+      Door currentRoomDoor = new Door();
+      Door connectedRoomDoor = new Door();
+      if(connectedRoomWall.equals("E") || connectedRoomWall.equals("W")){
+        currentRoomDoor.setWallLoc(currentRoom.getHeight()/2);
+        connectedRoomDoor.setWallLoc(conRoom.getHeight()/2);
+      }
+      else{
+        currentRoomDoor.setWallLoc(currentRoom.getWidth()/2);
+        connectedRoomDoor.setWallLoc(conRoom.getWidth()/2);
+      }
+      currentRoomDoor.setWall(currentRoomWall);
+      connectedRoomDoor.setWall(connectedRoomWall);
+      currentRoomDoor.setCurRoom(currentRoomIndex);
+      currentRoomDoor.setConRoom(connectedRoomIndex);
+      connectedRoomDoor.setCurRoom(connectedRoomIndex);
+      connectedRoomDoor.setConRoom(currentRoomIndex);
+      currentRoomDoor.ConnectRoom(currentRoom);
+      currentRoomDoor.ConnectRoom(conRoom);
+      connectedRoomDoor.ConnectRoom(conRoom);
+      connectedRoomDoor.ConnectRoom(currentRoom);
+      currentRoomDoor.setExitDoor(connectedRoomDoor);
+      connectedRoomDoor.setExitDoor(currentRoomDoor);
+
+      doorList.add(currentRoomDoor);
+      doorList.add(connectedRoomDoor);
+
+      currentRoom.setDoor(currentRoomWall, currentRoomDoor);
+      conRoom.setDoor(connectedRoomWall, connectedRoomDoor);
+    }
+
+    public String openWall(Room r){
+      int check = r.getDoor("N");
+      if(check == -1){
+        return("N");
+      }
+      check = r.getDoor("E");
+      if(check == -1){
+        return("E");
+      }
+      check = r.getDoor("S");
+      if(check == -1){
+        return("S");
+      }
+      check = r.getDoor("W");
+      if(check == -1){
+        return("W");
+      }
+      return (null);
     }
 
     public void addDoors(RogueParser theDungeonInfo){
@@ -48,7 +126,6 @@ public class Rogue {
       for(int i = 0; i < roomList.size(); i++){
         for(int j = 0; j < doorList.size(); j++){
           if(roomList.get(i).getId() == doorList.get(j).getCurRoom()){
-            System.out.println("this fits here good sir");
             roomList.get(i).setDoor(doorList.get(j).getWall(), doorList.get(j));
           }
         }
@@ -116,9 +193,13 @@ public class Rogue {
       this.symbols.put("DOOR", rogueParser.getSymbol("DOOR"));
       this.symbols.put("FLOOR", rogueParser.getSymbol("FLOOR"));
       this.symbols.put("PLAYER", rogueParser.getSymbol("PLAYER"));
-      this.symbols.put("ITEM", rogueParser.getSymbol("ITEM"));
+      this.symbols.put("GOLD", rogueParser.getSymbol("GOLD"));
       this.symbols.put("NS_WALL", rogueParser.getSymbol("NS_WALL"));
       this.symbols.put("EW_WALL", rogueParser.getSymbol("EW_WALL"));
+      this.symbols.put("POTION", rogueParser.getSymbol("POTION"));
+      this.symbols.put("SCROLL", rogueParser.getSymbol("SCROLL"));
+      this.symbols.put("ARMOR", rogueParser.getSymbol("ARMOR"));
+      this.symbols.put("FOOD", rogueParser.getSymbol("FOOD"));
     }
 
     /**
@@ -200,6 +281,7 @@ public class Rogue {
       newItem.setId(Integer.parseInt(itemMap.get("id")));
       newItem.setName(itemMap.get("name"));
       newItem.setType(itemMap.get("type"));
+      newItem.setDescription(itemMap.get("description"));
 
       return (newItem);
     }
