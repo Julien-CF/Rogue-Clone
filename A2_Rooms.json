@@ -1,7 +1,7 @@
 {
     "room": [{
             "id": 1,
-            "start": true,
+            "start": false,
             "height": 10,
             "width": 20,
             "doors": [{
@@ -28,7 +28,7 @@
         },
         {
             "id": 2,
-            "start": false,
+            "start": true,
             "height": 10,
             "width": 20,
             "doors": [{

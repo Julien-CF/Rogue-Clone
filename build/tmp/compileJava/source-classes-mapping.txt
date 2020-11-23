@@ -4,8 +4,6 @@ rogue/RogueParser.java
  rogue.RogueParser
 rogue/NoSuchItemException.java
  rogue.NoSuchItemException
-rogue/A1Solution.java
- rogue.A1Solution
 rogue/Player.java
  rogue.Player
 rogue/ImpossiblePositionException.java

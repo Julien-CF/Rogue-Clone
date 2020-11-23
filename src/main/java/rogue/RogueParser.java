@@ -44,15 +44,19 @@ public class RogueParser {
         parse(filename);
     }
 
+
+    /**
+     * Return the array of doors.
+     * @return (Array) array of doors
+     */
+    public ArrayList<Map<String, String>> getDoors() {
+      return (this.doorList);
+    }
+
     /**
      * Return the next room.
      * @return (Map) Information about a room
      */
-
-    public ArrayList<Map<String, String>> getDoors(){
-      return(this.doorList);
-    }
-
     public Map nextRoom() {
 
         if (roomIterator.hasNext()) {

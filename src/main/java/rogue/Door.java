@@ -2,7 +2,7 @@ package rogue;
 import java.util.ArrayList;
 
 
-public class Door{
+public class Door {
 
   private ArrayList<Room> roomList = new ArrayList<Room>();
   private int wallLoc;
@@ -12,68 +12,122 @@ public class Door{
 
   private Door exitDoor;
 
-  public Door(){
+  /**
+  * Constructor for Door.
+  */
+  public Door() {
 
   }
-  public void ConnectRoom(Room r){
+
+  /**
+  * Connects a room to the door.
+  * @param r room to be connected
+  */
+  public void connectRoom(Room r) {
     this.roomList.add(r);
   }
 
-  public ArrayList<Room> getConnectedRooms(){
-    return(this.roomList);
+  /**
+  * get the list of rooms connected to the door.
+  * @return arrayList containing rooms
+  */
+  public ArrayList<Room> getConnectedRooms() {
+    return (this.roomList);
   }
 
-  public Room getOtherRoom(Room currentRoom){
+  /**
+  * returns the other room in the list of rooms connected.
+  * @param currentRoom room used to diferenciate what the other room is
+  * @return r the other room opposite currentRoom
+  */
+  public Room getOtherRoom(Room currentRoom) {
     Room r = new Room();
-    for(int i = 0; i < roomList.size(); i++){
-      if(!(this.roomList.get(i).equals(currentRoom))){
+    for (int i = 0; i < roomList.size(); i++) {
+      if (!(this.roomList.get(i).equals(currentRoom))) {
         r = roomList.get(i);
         break;
       }
     }
-    return(r);
+    return (r);
   }
 
-  public void setExitDoor(Door door){
+  /**
+  * setter for the exit door.
+  * @param door
+  */
+  public void setExitDoor(Door door) {
     this.exitDoor = door;
   }
 
-  public void setWallLoc(int newWallLoc){
+  /**
+  * setter for the doors location on the wall.
+  * @param newWallLoc
+  */
+  public void setWallLoc(int newWallLoc) {
     this.wallLoc = newWallLoc;
   }
 
-  public void setWall(String newWall){
+  /**
+  * setter for the new wall that the door is located on.
+  * @param newWall
+  */
+  public void setWall(String newWall) {
     this.wall = newWall;
   }
 
-  public void setCurRoom(int newCurRoom){
+  /**
+  * setter for the new current room that this door sits in.
+  * @param newCurRoom
+  */
+  public void setCurRoom(int newCurRoom) {
     this.roomIndex = newCurRoom;
   }
 
-  public void setConRoom(int newConRoom){
+  /**
+  * setter for the new connected room.
+  * @param newConRoom
+  */
+  public void setConRoom(int newConRoom) {
     this.conRoomIndex = newConRoom;
   }
 
-  public int getWallLoc(){
-    return(this.wallLoc);
+  /**
+  * getter for the wall location of the door.
+  * @return wall location
+  */
+  public int getWallLoc() {
+    return (this.wallLoc);
   }
 
-  public String getWall(){
-    return(this.wall);
+  /**
+  * getter for the wall the door sits on.
+  * @return wall
+  */
+  public String getWall() {
+    return (this.wall);
   }
 
-  public int getCurRoom(){
-    return(this.roomIndex);
+  /**
+  * getter for the current room of the door.
+  * @return roomIndex
+  */
+  public int getCurRoom() {
+    return (this.roomIndex);
   }
 
-  public int getConRoom(){
-    return(this.conRoomIndex);
+  /**
+  * getter for the connected room.
+  * @return conRoomIndex
+  */
+  public int getConRoom() {
+    return (this.conRoomIndex);
   }
 
-  public Door getExitDoor(){
+  /**
+  * getter for the exit door associated with this door.
+  * @return exitdoor
+  */
+  public Door getExitDoor() {
     return this.exitDoor;
   }
-
-
-
 }

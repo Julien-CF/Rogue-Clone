@@ -75,7 +75,7 @@ Prints a string to the screen starting at the indicated column and row.
 
             Terminal t = screen.getTerminal();
             try {
-                t.setCursorPosition(column-1, row);
+                t.setCursorPosition(column, row);
             for (char ch: toDisplay.toCharArray()) {
                 t.putCharacter(ch);
             }
@@ -89,7 +89,7 @@ Changes the message at the top of the screen for the user.
 @param msg the message to be displayed
 **/
             public void setMessage(String msg) {
-                putString("                                                ",1, 1);
+                putString("                                                ", 1, 1);
                 putString(msg, startCol, msgRow);
             }
 
@@ -102,7 +102,7 @@ Redraws the whole screen including the room and the message.
 
                 try {
                     setMessage(message);
-                    putString(room, startCol, roomRow);
+                    putString(room, startCol - 1, roomRow);
                     screen.refresh();
                 } catch (IOException e) {
 

@@ -28,9 +28,14 @@ public class Room  {
 
     }
 
-    public Door getFullDoor(String direction){
+    /**
+    * gets the full object of the door in question.
+    * @param direction positon of the door to be returned
+    * @return temp the door
+    */
+    public Door getFullDoor(String direction) {
       if (this.door.get(direction) == null) {
-          return(null);
+          return (null);
       }
       Door temp = this.door.get(direction);
       return (temp);
@@ -46,7 +51,11 @@ public class Room  {
         this.symbols = symbol;
     }
 
-    public void addNewItem(Item newItem){
+    /**
+    * adds a new item to the list of items contained in the room.
+    * @param newItem the item to be added
+    */
+    public void addNewItem(Item newItem) {
       lootList.add(newItem);
     }
 
@@ -165,7 +174,7 @@ public class Room  {
 
     /**
     * @param direction is one of NSEW.
-    * @param location is a number between 0 and the length of the wall
+    * @param newDoor new door added to the room
     */
     public void setDoor(String direction, Door newDoor) {
         this.door.put(direction, newDoor);
@@ -215,7 +224,7 @@ public class Room  {
             int x = (int) tempP.getX();
             int y = (int) tempP.getY();
             if (j == x && i == y) {
-                return(tempI.getType().toUpperCase());
+                return (tempI.getType().toUpperCase());
             }
 
         }
@@ -251,7 +260,7 @@ public class Room  {
                     content = content + this.symbols.get("PLAYER");
                 } else {
                   // System.out.println(itemIsThere(i,j));
-                  content = content + this.symbols.get(itemIsThere(i , j));
+                  content = content + this.symbols.get(itemIsThere(i, j));
                 }
             }
             if (i == doorPosE) {
@@ -279,28 +288,41 @@ public class Room  {
         return (map);
     }
 
-    public void addItem(Item toAdd) throws ImpossiblePositionException, NoSuchItemException{
-      if(toAdd.getName() == null){
+    /**
+    * checks if a item is valid to be added in a room.
+    * @param toAdd the item to verify
+    * @throws ImpossiblePositionException
+    * @throws NoSuchItemException
+    */
+    public void addItem(Item toAdd) throws ImpossiblePositionException, NoSuchItemException {
+      if (toAdd.getName() == null) {
         throw new NoSuchItemException();
       }
-      if(toAdd.getXyLocation().getX() <= 0 || toAdd.getXyLocation().getY() <= 0 || toAdd.getXyLocation().getY() >= getHeight() - 1 || toAdd.getXyLocation().getX() >= getWidth() - 1 ){
+      int x = (int) toAdd.getXyLocation().getX();
+      int y = (int) toAdd.getXyLocation().getY();
+      if (x <= 0 || y <= 0 || y >= getHeight() - 1 || x >= getWidth() - 1) {
         throw new ImpossiblePositionException();
-      } else if(isPlayerInRoom() && (toAdd.getXyLocation().getX() == player.getXyLocation().getX() && toAdd.getXyLocation().getY() == player.getXyLocation().getY())){
+      } else if (isPlayerInRoom() && (x == player.getXyLocation().getX() && y == player.getXyLocation().getY())) {
         throw new ImpossiblePositionException();
-      } else{
-        for(int i = 0; i < lootList.size(); i++){
-          if(toAdd.getXyLocation().getX() == lootList.get(i).getXyLocation().getX() && toAdd.getXyLocation().getY() == lootList.get(i).getXyLocation().getY()){
+      } else {
+        for (int i = 0; i < lootList.size(); i++) {
+          if (x == lootList.get(i).getXyLocation().getX() && y == lootList.get(i).getXyLocation().getY()) {
             throw new ImpossiblePositionException();
           }
         }
       }
     }
 
-    public boolean verifyRoom() throws NotEnoughDoorsException{
-      if(door.isEmpty()){
+    /**
+    * verifies the room is complete and has at least one door.
+    * @return true if room is complete
+    * @throws NotEnoughDoorsException
+    */
+    public boolean verifyRoom() throws NotEnoughDoorsException {
+      if (door.isEmpty()) {
         throw new NotEnoughDoorsException();
       }
-      return(true);
+      return (true);
     }
 
 }

@@ -5,8 +5,6 @@ import java.awt.Point;
 import java.util.Map;
 import java.util.HashMap;
 
-import java.lang.NullPointerException;
-
 
 
 public class Rogue {
@@ -22,9 +20,10 @@ public class Rogue {
     private RogueParser rogueParser;
     private Player player = new Player("Default");
     private HashMap<String, Character> symbols = new HashMap<>();
+
     /**
     * initializes rogueParser.
-    * @param filename the name of the file tp parse from
+    * @param theDungeonInfo contains the parse information
     */
     public Rogue(RogueParser theDungeonInfo) {
         Map<String, String> roomMap;
@@ -35,18 +34,23 @@ public class Rogue {
         }
         addDoors(theDungeonInfo);
         placeDoors();
-        for(int i = 0; i < roomList.size(); i++){
+        for (int i = 0; i < roomList.size(); i++) {
           checkRoom(roomList.get(i), i);
         }
-        while((itemMap = theDungeonInfo.nextItem()) != null){
+        while ((itemMap = theDungeonInfo.nextItem()) != null) {
           addItem(itemMap);
         }
         updPlayerRoom();
     }
 
-    public void checkRoom(Room r, int index){
-      try{
-        for(int i = 0; i < roomList.size(); i++){
+    /**
+    * Check if room is valid if not fix it.
+    * @param r room to be verified
+    * @param index
+    */
+    public void checkRoom(Room r, int index) {
+      try {
+        for (int i = 0; i < roomList.size(); i++) {
           r.verifyRoom();
         }
       } catch (NotEnoughDoorsException e) {
@@ -54,30 +58,46 @@ public class Rogue {
       }
     }
 
-    public int fixRoom(Room r, int index){
-      for(int i = 0; i < roomList.size(); i++){
+    /**
+    * fix the room given by creating a new door and linking it.
+    * @param r room to be fixed
+    * @param index
+    * @return (int) -1 if there is no way of fixing room
+    */
+    public int fixRoom(Room r, int index) {
+      for (int i = 0; i < roomList.size(); i++) {
         String wall = openWall(roomList.get(i));
-        if(wall != null){
+        if (wall != null) {
           String oppWall = oppositeWall(wall);
           newConnection(r, roomList.get(i), oppWall, wall, index, i);
-          return(1);
+          return (1);
         }
       }
       System.out.println("dungeon file cannot be used");
       System.exit(-1);
-      return(-1);
+      return (-1);
     }
 
-    public void newConnection(Room currentRoom, Room conRoom, String currentRoomWall, String connectedRoomWall, int currentRoomIndex, int connectedRoomIndex){
+    /**
+    * connect the new door to a room with available space.
+    * @param currentRoom
+    * @param conRoom
+    * @param currentRoomWall
+    * @param connectedRoomWall
+    * @param currentRoomIndex
+    * @param connectedRoomIndex
+    */
+    public void newConnection(Room currentRoom, Room conRoom,
+                              String currentRoomWall, String connectedRoomWall,
+                              int currentRoomIndex, int connectedRoomIndex) {
       Door currentRoomDoor = new Door();
       Door connectedRoomDoor = new Door();
-      if(connectedRoomWall.equals("E") || connectedRoomWall.equals("W")){
-        currentRoomDoor.setWallLoc(currentRoom.getHeight()/2);
-        connectedRoomDoor.setWallLoc(conRoom.getHeight()/2);
-      }
-      else{
-        currentRoomDoor.setWallLoc(currentRoom.getWidth()/2);
-        connectedRoomDoor.setWallLoc(conRoom.getWidth()/2);
+      if (connectedRoomWall.equals("E") || connectedRoomWall.equals("W")) {
+        currentRoomDoor.setWallLoc(currentRoom.getHeight() / 2);
+        connectedRoomDoor.setWallLoc(conRoom.getHeight() / 2);
+      } else {
+        currentRoomDoor.setWallLoc(currentRoom.getWidth() / 2);
+        connectedRoomDoor.setWallLoc(conRoom.getWidth() / 2);
       }
       currentRoomDoor.setWall(currentRoomWall);
       connectedRoomDoor.setWall(connectedRoomWall);
@@ -85,10 +105,10 @@ public class Rogue {
       currentRoomDoor.setConRoom(connectedRoomIndex);
       connectedRoomDoor.setCurRoom(connectedRoomIndex);
       connectedRoomDoor.setConRoom(currentRoomIndex);
-      currentRoomDoor.ConnectRoom(currentRoom);
-      currentRoomDoor.ConnectRoom(conRoom);
-      connectedRoomDoor.ConnectRoom(conRoom);
-      connectedRoomDoor.ConnectRoom(currentRoom);
+      currentRoomDoor.connectRoom(currentRoom);
+      currentRoomDoor.connectRoom(conRoom);
+      connectedRoomDoor.connectRoom(conRoom);
+      connectedRoomDoor.connectRoom(currentRoom);
       currentRoomDoor.setExitDoor(connectedRoomDoor);
       connectedRoomDoor.setExitDoor(currentRoomDoor);
 
@@ -99,29 +119,38 @@ public class Rogue {
       conRoom.setDoor(connectedRoomWall, connectedRoomDoor);
     }
 
-    public String openWall(Room r){
+    /**
+    * look for an open wall in the room.
+    * @param r room to check
+    * @return (string) the wall that is open
+    */
+    public String openWall(Room r) {
       int check = r.getDoor("N");
-      if(check == -1){
-        return("N");
+      if (check == -1) {
+        return ("N");
       }
       check = r.getDoor("E");
-      if(check == -1){
-        return("E");
+      if (check == -1) {
+        return ("E");
       }
       check = r.getDoor("S");
-      if(check == -1){
-        return("S");
+      if (check == -1) {
+        return ("S");
       }
       check = r.getDoor("W");
-      if(check == -1){
-        return("W");
+      if (check == -1) {
+        return ("W");
       }
       return (null);
     }
 
-    public void addDoors(RogueParser theDungeonInfo){
+    /**
+    * create all doors that will populate the world.
+    * @param theDungeonInfo contains the information for the doors
+    */
+    public void addDoors(RogueParser theDungeonInfo) {
       ArrayList<Map<String, String>> door = theDungeonInfo.getDoors();
-      for(int i = 0; i < door.size(); i++){
+      for (int i = 0; i < door.size(); i++) {
         Map<String, String> currentDoor = door.get(i);
         Door newDoor = buildDoor(currentDoor);
         doorList.add(newDoor);
@@ -129,84 +158,105 @@ public class Rogue {
       linkDoors();
     }
 
-    public void placeDoors(){
-      for(int i = 0; i < roomList.size(); i++){
-        for(int j = 0; j < doorList.size(); j++){
-          if(roomList.get(i).getId() == doorList.get(j).getCurRoom()){
+    /**
+    * add the doors to their corresponding rooms.
+    */
+    public void placeDoors() {
+      for (int i = 0; i < roomList.size(); i++) {
+        for (int j = 0; j < doorList.size(); j++) {
+          if (roomList.get(i).getId() == doorList.get(j).getCurRoom()) {
             roomList.get(i).setDoor(doorList.get(j).getWall(), doorList.get(j));
           }
         }
       }
     }
 
-    public void linkDoors(){
-      for(int i = 0; i < doorList.size(); i++){
-        for(int j = 0; j < doorList.size(); j++){
+    /**
+    * link the doors to their exit door.
+    */
+    public void linkDoors() {
+      for (int i = 0; i < doorList.size(); i++) {
+        for (int j = 0; j < doorList.size(); j++) {
           String oppWall = oppositeWall(doorList.get(i).getWall());
-          if((doorList.get(i).getConRoom() == doorList.get(j).getCurRoom()) && (oppWall.equals(doorList.get(j).getWall()))){
+          String curWall = doorList.get(j).getWall();
+          if ((doorList.get(i).getConRoom() == doorList.get(j).getCurRoom()) && (oppWall.equals(curWall))) {
             doorList.get(i).setExitDoor(doorList.get(j));
           }
         }
       }
     }
 
-    public String oppositeWall(String wall){
-      if(wall.equals("N")){
-        return("S");
-      } else if (wall.equals("S")){
-        return("N");
-      } else if(wall.equals("E")){
-        return("W");
-      } else if(wall.equals("W")){
-        return("E");
+    /**
+    * find the opposite wall.
+    * @param wall the wall to find its opposite
+    * @return (String) the opposite wall
+    */
+    public String oppositeWall(String wall) {
+      if (wall.equals("N")) {
+        return ("S");
+      } else if (wall.equals("S")) {
+        return ("N");
+      } else if (wall.equals("E")) {
+        return ("W");
+      } else if (wall.equals("W")) {
+        return ("E");
       }
-      return(null);
+      return (null);
     }
 
-    public Door buildDoor(Map<String, String> door){
+    /**
+    * build a new door.
+    * @param door HashMap containing the informationused to construct the door object
+    * @return newDoor the newly constructed door
+    */
+    public Door buildDoor(Map<String, String> door) {
       Door newDoor = new Door();
       newDoor.setCurRoom(Integer.parseInt(door.get("curRoom")));
       newDoor.setConRoom(Integer.parseInt(door.get("con_room")));
       newDoor.setWall(door.get("dir"));
       newDoor.setWallLoc(Integer.parseInt(door.get("wall_pos")));
 
-      for(int i = 0; i < roomList.size(); i++){
-        if(roomList.get(i).getId() == newDoor.getCurRoom()){
-          newDoor.ConnectRoom(roomList.get(i));
+      for (int i = 0; i < roomList.size(); i++) {
+        if (roomList.get(i).getId() == newDoor.getCurRoom()) {
+          newDoor.connectRoom(roomList.get(i));
         } else if (roomList.get(i).getId() == newDoor.getConRoom()) {
-          newDoor.ConnectRoom(roomList.get(i));
+          newDoor.connectRoom(roomList.get(i));
         }
       }
-      return(newDoor);
+      return (newDoor);
     }
 
-    public void addItem(Map<String, String> toAdd){
-      int roomIndex = Integer.parseInt(toAdd.get("room"))-1;
+    /**
+    * adds an item to the list of items that populate the game.
+    * @param toAdd HashMap containing the information to create an item
+    */
+    public void addItem(Map<String, String> toAdd) {
+      int roomIndex = Integer.parseInt(toAdd.get("room")) - 1;
       Item newItem = buildItem(toAdd, roomList.get(roomIndex));
       newItem = verifyItem(newItem, roomList.get(roomIndex));
-      if(newItem != null){
+      if (newItem != null) {
         itemList.add(newItem);
         roomList.get(roomIndex).addNewItem(newItem);
       }
     }
+
     /**
     * parse the symbols to be used in the program from a specified file.
-    * @return Hashmap containing the symbols
+    * @param parser parsed information
     */
-    public void setSymbols(RogueParser rogueParser) {
-      HashMap<String, Character> symbols = new HashMap<>();
+    public void setSymbols(RogueParser parser) {
 
-      this.symbols.put("PASSAGE", rogueParser.getSymbol("PASSAGE"));
-      this.symbols.put("DOOR", rogueParser.getSymbol("DOOR"));
-      this.symbols.put("FLOOR", rogueParser.getSymbol("FLOOR"));
-      this.symbols.put("PLAYER", rogueParser.getSymbol("PLAYER"));
-      this.symbols.put("GOLD", rogueParser.getSymbol("GOLD"));
-      this.symbols.put("NS_WALL", rogueParser.getSymbol("NS_WALL"));
-      this.symbols.put("EW_WALL", rogueParser.getSymbol("EW_WALL"));
-      this.symbols.put("POTION", rogueParser.getSymbol("POTION"));
-      this.symbols.put("SCROLL", rogueParser.getSymbol("SCROLL"));
-      this.symbols.put("ARMOR", rogueParser.getSymbol("ARMOR"));
-      this.symbols.put("FOOD", rogueParser.getSymbol("FOOD"));
+      this.symbols.put("PASSAGE", parser.getSymbol("PASSAGE"));
+      this.symbols.put("DOOR", parser.getSymbol("DOOR"));
+      this.symbols.put("FLOOR", parser.getSymbol("FLOOR"));
+      this.symbols.put("PLAYER", parser.getSymbol("PLAYER"));
+      this.symbols.put("GOLD", parser.getSymbol("GOLD"));
+      this.symbols.put("NS_WALL", parser.getSymbol("NS_WALL"));
+      this.symbols.put("EW_WALL", parser.getSymbol("EW_WALL"));
+      this.symbols.put("POTION", parser.getSymbol("POTION"));
+      this.symbols.put("SCROLL", parser.getSymbol("SCROLL"));
+      this.symbols.put("ARMOR", parser.getSymbol("ARMOR"));
+      this.symbols.put("FOOD", parser.getSymbol("FOOD"));
     }
 
     /**
@@ -242,36 +292,47 @@ public class Rogue {
       this.player = thePlayer;
     }
 
-
-    public Item verifyItem(Item item, Room room){
-      try{
+    /**
+    * verfies that an item is valid.
+    * @param item item to be verified
+    * @param room room where the item is placed
+    * @return item the reconstructed item
+    */
+    public Item verifyItem(Item item, Room room) {
+      try {
         room.addItem(item);
-      } catch(NoSuchItemException a){
+      } catch (NoSuchItemException a) {
         item = null;
-        return(item);
-      } catch(ImpossiblePositionException e){
+        return (item);
+      } catch (ImpossiblePositionException e) {
         item = rebuildItem(item, room);
       }
 
-      return(item);
+      return (item);
     }
 
-    public Item rebuildItem(Item item, Room room){
-      for(int i = 1; i < room.getHeight() - 1; i++){
-        for(int j = 1; j < room.getWidth() - 1; j++){
+    /**
+    * rebuilds an item so that it is valid.
+    * @param item the item to be rebuilt
+    * @param room room where the item is placed
+    * @return item reconstructed item
+    */
+    public Item rebuildItem(Item item, Room room) {
+      for (int i = 1; i < room.getHeight() - 1; i++) {
+        for (int j = 1; j < room.getWidth() - 1; j++) {
           Point newPoint = new Point(j, i);
           item.setXyLocation(newPoint);
-          try{
+          try {
             room.addItem(item);
             i = room.getHeight();
             break;
 
-          } catch (ImpossiblePositionException e){
-          } catch (NoSuchItemException a){
+          } catch (ImpossiblePositionException e) {
+          } catch (NoSuchItemException a) {
           }
         }
       }
-      return(item);
+      return (item);
     }
 
     /**
@@ -293,7 +354,11 @@ public class Rogue {
       return (newItem);
     }
 
-    public void addRoom(Map<String, String> toAdd){
+    /**
+    * construct a new room to be added to the list of rooms.
+    * @param toAdd hashmap containing the information needed to construct the room
+    */
+    public void addRoom(Map<String, String> toAdd) {
       Room newRoom = new Room();
       int id = Integer.parseInt(toAdd.get("id"));
       newRoom.setId(id);
@@ -313,6 +378,11 @@ public class Rogue {
       this.roomList.add(newRoom);
     }
 
+    /**
+    * checks to see if a String is "true".
+    * @param str the string to check
+    * @return (boolean)
+    */
     boolean checkTrue(String str) {
       if (str.equals("true")) {
         return (true);
@@ -320,59 +390,84 @@ public class Rogue {
       return (false);
     }
 
-    public String makeMove(char input) throws InvalidMoveException{
+    /**
+    * updates the displayed room dependent on the input.
+    * @param input the input that the user puts
+    * @return message description of the move that was made
+    * @throws InvalidMoveException
+    */
+    public String makeMove(char input) throws InvalidMoveException {
       String message = "Move made";
-      if(input != 'w' && input != 'a' && input != 's' && input != 'd'){
+      if (input != 'w' && input != 'a' && input != 's' && input != 'd') {
         throw new InvalidMoveException();
       }
       message = updateRoom(input, player.getCurrentRoom(), message);
 
       updPlayerRoom();
-      return(message);
+      return (message);
     }
 
-    public String updateRoom(char input, Room r, String message){
+    /**
+    * updates the displayed room by verifying the players new position.
+    * @param input players requested input
+    * @param r room to be updated
+    * @param message String to be updated dependent on the movement made
+    * @return message descibes the move made
+    */
+    public String updateRoom(char input, Room r, String message) {
       int x = (int) r.getPlayer().getXyLocation().getX();
       int y = (int) r.getPlayer().getXyLocation().getY();
-      if(input == 'w' && r.getPlayer().getXyLocation().getY()-1 > 0){
-        Point newPoint = new Point(x, y-1);
+      if (input == 'w' && r.getPlayer().getXyLocation().getY() - 1 > 0) {
+        Point newPoint = new Point(x, y - 1);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 's' && r.getPlayer().getXyLocation().getY()+1 < r.getHeight() - 1){
-        Point newPoint = new Point(x, y+1);
+      } else if (input == 's' && r.getPlayer().getXyLocation().getY() + 1 < r.getHeight() - 1) {
+        Point newPoint = new Point(x, y + 1);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 'a' && r.getPlayer().getXyLocation().getX()-1 > 0){
-        Point newPoint = new Point(x-1, y);
+      } else if (input == 'a' && r.getPlayer().getXyLocation().getX() - 1 > 0) {
+        Point newPoint = new Point(x - 1, y);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 'd' && r.getPlayer().getXyLocation().getX()+1 < r.getWidth() - 1){
-        Point newPoint = new Point(x+1, y);
+      } else if (input == 'd' && r.getPlayer().getXyLocation().getX() + 1 < r.getWidth() - 1) {
+        Point newPoint = new Point(x + 1, y);
         r.getPlayer().setXyLocation(newPoint);
-      } else{
+      } else {
         message = "Can't move there, wall in way";
         message = checkDoor(r, input, message);
-        return(message);
+        return (message);
       }
       message = grabItem(r, message);
-      return(message);
+      return (message);
     }
 
-    public String checkDoor(Room r, char input,String message){
-      if(input == 'w' && r.getPlayer().getXyLocation().getX() == r.getDoor("N")){
+    /**
+    * checks if next move leads to door.
+    * @param r room to checks
+    * @param input move to be made by player
+    * @param message message describing next move made
+    * @return message describes the next move
+    */
+    public String checkDoor(Room r, char input, String message) {
+      if (input == 'w' && r.getPlayer().getXyLocation().getX() == r.getDoor("N")) {
         goThroughDoor(r.getFullDoor("N"), r);
-        return("Gone through Door");
-      } else if(input == 's' && r.getPlayer().getXyLocation().getX() == r.getDoor("S")){
+        return ("Gone through Door");
+      } else if (input == 's' && r.getPlayer().getXyLocation().getX() == r.getDoor("S")) {
         goThroughDoor(r.getFullDoor("S"), r);
-        return("Gone through door");
-      } else if(input == 'a' && r.getPlayer().getXyLocation().getY() == r.getDoor("W")){
+        return ("Gone through door");
+      } else if (input == 'a' && r.getPlayer().getXyLocation().getY() == r.getDoor("W")) {
         goThroughDoor(r.getFullDoor("W"), r);
-        return("Gone through door");
-      } else if(input == 'd' && r.getPlayer().getXyLocation().getY() == r.getDoor("E")){
+        return ("Gone through door");
+      } else if (input == 'd' && r.getPlayer().getXyLocation().getY() == r.getDoor("E")) {
         goThroughDoor(r.getFullDoor("E"), r);
-        return("Gone through door");
+        return ("Gone through door");
       }
-      return(message);
+      return (message);
     }
 
-    public void goThroughDoor(Door entrance, Room r){
+    /**
+    * moves a player through the door to the next room.
+    * @param entrance door that you go through
+    * @param r room currently in
+    */
+    public void goThroughDoor(Door entrance, Room r) {
       Room exit = entrance.getOtherRoom(r);
       Door exitDoor = entrance.getExitDoor();
 
@@ -383,51 +478,62 @@ public class Rogue {
 
       r.setInRoom(false);
       r.setPlayer(null);
-
     }
 
-    public void placePlayer(Door d, Room r){
-      if(d.getWall().equals("N")){
-        System.out.println("N");
-        Point newPoint = new Point(d.getWallLoc(),1);
+    /**
+    * put the player in its new position in the next room after walking through door.
+    * @param d door being exitted out of
+    * @param r room being entered
+    */
+    public void placePlayer(Door d, Room r) {
+      if (d.getWall().equals("N")) {
+        Point newPoint = new Point(d.getWallLoc(), 1);
         r.getPlayer().setXyLocation(newPoint);
-      } else if(d.getWall().equals("S")){
-        System.out.println("S");
-        Point newPoint = new Point(d.getWallLoc(),r.getHeight()-2);
+      } else if (d.getWall().equals("S")) {
+        Point newPoint = new Point(d.getWallLoc(), r.getHeight() - 2);
         r.getPlayer().setXyLocation(newPoint);
-      } else if(d.getWall().equals("W")){
-        System.out.println("E");
-        Point newPoint = new Point(1,d.getWallLoc());
+      } else if (d.getWall().equals("W")) {
+        Point newPoint = new Point(1, d.getWallLoc());
         r.getPlayer().setXyLocation(newPoint);
-      } else if(d.getWall().equals("E")){
-        System.out.println("W");
-        Point newPoint = new Point(r.getWidth()-2, d.getWallLoc());
+      } else if (d.getWall().equals("E")) {
+        Point newPoint = new Point(r.getWidth() - 2, d.getWallLoc());
         r.getPlayer().setXyLocation(newPoint);
       }
     }
 
-    public String grabItem(Room r, String message){
-      for(int i = 0; i < r.getRoomItems().size(); i++){
-        if(r.getPlayer().getXyLocation().equals(r.getRoomItems().get(i).getXyLocation())){
+    /**
+    * if a player is on an item grab it.
+    * @param r room currently in
+    * @param message string describing the next move
+    * @return message describes the next move
+    */
+    public String grabItem(Room r, String message) {
+      for (int i = 0; i < r.getRoomItems().size(); i++) {
+        if (r.getPlayer().getXyLocation().equals(r.getRoomItems().get(i).getXyLocation())) {
           r.getRoomItems().remove(i);
-           return("Item grabbed");
+           return ("Item grabbed");
         }
       }
-      return(message);
+      return (message);
     }
 
-
-    public String getNextDisplay(){
+    /**
+    * gets the next display image.
+    * @return (String) contains the next instance of the game to be displayed
+    */
+    public String getNextDisplay() {
       updPlayerRoom();
       Room displayRoom = new Room();
       displayRoom = player.getCurrentRoom();
-      System.out.println(displayRoom.displayRoom());
-      return(displayRoom.displayRoom());
+      return (displayRoom.displayRoom());
     }
 
-    public void updPlayerRoom(){
-      for(int i = 0; i < roomList.size(); i++){
-        if(roomList.get(i).isPlayerInRoom()){
+    /**
+    * updates the active player to ensure it contains the correct information.
+    */
+    public void updPlayerRoom() {
+      for (int i = 0; i < roomList.size(); i++) {
+        if (roomList.get(i).isPlayerInRoom()) {
           player.setCurrentRoom(roomList.get(i));
           player.setXyLocation(roomList.get(i).getPlayer().getXyLocation());
         }
