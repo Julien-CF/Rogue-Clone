@@ -23,6 +23,13 @@ public class Rogue {
 
     /**
     * initializes rogueParser.
+    */
+    public Rogue() {
+
+    }
+
+    /**
+    * initializes rogueParser.
     * @param theDungeonInfo contains the parse information
     */
     public Rogue(RogueParser theDungeonInfo) {

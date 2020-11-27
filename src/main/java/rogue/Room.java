@@ -16,6 +16,7 @@ public class Room  {
     private int width;
     private ArrayList<Item> lootList = new ArrayList<Item>();
     private HashMap<String, Door> door = new HashMap<>();
+    private HashMap<String, Integer> doorLocations = new HashMap<>();
     private HashMap<String, Character> symbols = new HashMap<>();
     private boolean inRoom = false;
     private Player player;
@@ -178,6 +179,14 @@ public class Room  {
     */
     public void setDoor(String direction, Door newDoor) {
         this.door.put(direction, newDoor);
+    }
+
+    /**
+    * @param direction is one of NSEW.
+    * @param location location on wall added to the room
+    */
+    public void setDoor(String direction, int location) {
+        this.doorLocations.put(direction, location);
     }
 
     /**

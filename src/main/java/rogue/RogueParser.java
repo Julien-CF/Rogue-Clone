@@ -118,44 +118,60 @@ public class RogueParser {
      * @param filename (String) Name of the file
      */
     private void parse(String filename) {
-
-        JSONParser parser = new JSONParser();
-        JSONObject roomsJSON;
-        JSONObject symbolsJSON;
-
-        try {
-            Object obj = parser.parse(new FileReader(filename));
-            JSONObject configurationJSON = (JSONObject) obj;
-
-            // Extract the Rooms value from the file to get the file location for rooms
-            String roomsFileLocation = (String) configurationJSON.get("Rooms");
-
-            // Extract the Symbols value from the file to get the file location for symbols-map
-            String symbolsFileLocation = (String) configurationJSON.get("Symbols");
-
-            Object roomsObj = parser.parse(new FileReader(roomsFileLocation));
-            roomsJSON = (JSONObject) roomsObj;
-
-            Object symbolsObj = parser.parse(new FileReader(symbolsFileLocation));
-            symbolsJSON = (JSONObject) symbolsObj;
-
-
+            String roomsFileLocation = getFileLocation(filename, "Rooms");
+            String symbolsFileLocation = getFileLocation(filename, "Symbols");
+            JSONObject roomsJSON = createObject(roomsFileLocation);
+            JSONObject symbolsJSON = createObject(symbolsFileLocation);
             extractRoomInfo(roomsJSON);
             extractItemInfo(roomsJSON);
             extractSymbolInfo(symbolsJSON);
-
             roomIterator = rooms.iterator();
             itemIterator = itemLocations.iterator();
+    }
 
+    /**
+    * creates a JSON object.
+    * @param file
+    * @return roomsJSON
+    */
+    private JSONObject createObject(String file) {
+      Object roomsObj = null;
+      JSONObject roomsJSON = null;
+      try {
+      JSONParser parser = new JSONParser();
+      roomsObj = parser.parse(new FileReader(file));
+      roomsJSON = (JSONObject) roomsObj;
+      } catch (FileNotFoundException e) {
+          System.out.println("Cannot find file named: " + file);
+      } catch (IOException e) {
+          e.printStackTrace();
+      } catch (ParseException e) {
+          System.out.println("Error parsing JSON file");
+      }
+      return (roomsJSON);
+    }
 
-        } catch (FileNotFoundException e) {
-            System.out.println("Cannot find file named: " + filename);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            System.out.println("Error parsing JSON file");
-        }
-
+    /**
+    * grabs the file locations.
+    * @param filename
+    * @param type
+    * @return fileLocation
+    */
+    private String getFileLocation(String filename, String type) {
+      String fileLocation = null;
+      JSONParser parser = new JSONParser();
+      try {
+        Object obj = parser.parse(new FileReader(filename));
+        JSONObject configurationJSON = (JSONObject) obj;
+        fileLocation = (String) configurationJSON.get(type);
+      } catch (FileNotFoundException e) {
+          System.out.println("Cannot find file named: " + filename);
+      } catch (IOException e) {
+          e.printStackTrace();
+      } catch (ParseException e) {
+          System.out.println("Error parsing JSON file");
+      }
+      return (fileLocation);
     }
 
     /**
@@ -196,34 +212,41 @@ public class RogueParser {
      * @return (Map<String, String>) Contains key/values that has information about the room
      */
     private Map<String, String> singleRoom(JSONObject roomJSON) {
-
         HashMap<String, String> room = new HashMap<>();
         room.put("id", roomJSON.get("id").toString());
         room.put("start", roomJSON.get("start").toString());
         room.put("height", roomJSON.get("height").toString());
         room.put("width", roomJSON.get("width").toString());
-
-        // Update the map with any doors in the room
         JSONArray doorArray = (JSONArray) roomJSON.get("doors");
         for (int j = 0; j < doorArray.size(); j++) {
             HashMap<String, String> newDoor = new HashMap<>();
             JSONObject doorObj = (JSONObject) doorArray.get(j);
-            newDoor.put("dir", String.valueOf(doorObj.get("dir")));
-            newDoor.put("curRoom", roomJSON.get("id").toString());
-            newDoor.put("con_room", doorObj.get("con_room").toString());
-            newDoor.put("wall_pos", doorObj.get("wall_pos").toString());
+            newDoor = createDoor(newDoor, doorObj, roomJSON);
             doorList.add(newDoor);
         }
-
         JSONArray lootArray = (JSONArray) roomJSON.get("loot");
-        // Loop through each item and update the hashmap
         for (int j = 0; j < lootArray.size(); j++) {
             itemLocations.add(itemPosition((JSONObject) lootArray.get(j), roomJSON.get("id").toString()));
             numOfItems += 1;
         }
-
         return room;
     }
+
+    /**
+    * fill a hashmap with information needed for a door.
+    * @param newDoor
+    * @param door
+    * @param roomJSON
+    * @return newDoor
+    */
+    private HashMap<String, String> createDoor(HashMap<String, String> newDoor, JSONObject door, JSONObject roomJSON) {
+      newDoor.put("dir", String.valueOf(door.get("dir")));
+      newDoor.put("curRoom", roomJSON.get("id").toString());
+      newDoor.put("con_room", door.get("con_room").toString());
+      newDoor.put("wall_pos", door.get("wall_pos").toString());
+      return (newDoor);
+    }
+
 
     /**
      * Create a map for information about an item in a room.
