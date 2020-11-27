@@ -72,7 +72,6 @@ Prints a string to the screen starting at the indicated column and row.
 @param row the row in which to start the display
 **/
         public void putString(String toDisplay, int column, int row) {
-
             Terminal t = screen.getTerminal();
             try {
                 t.setCursorPosition(column, row);
@@ -101,6 +100,7 @@ Redraws the whole screen including the room and the message.
             public void draw(String message, String room) {
 
                 try {
+                    terminal.clearScreen();
                     setMessage(message);
                     putString(room, startCol - 1, roomRow);
                     screen.refresh();
@@ -176,8 +176,6 @@ The controller method for making the game logic work.
         theGameUI.setMessage(message);
     }
     }
-
-
     }
 
 }

@@ -236,42 +236,57 @@ public class Room  {
     * @return a string containing the content of the room
     */
     public String createContent() {
-
         String content = "";
         String wall = Character.toString(this.symbols.get("EW_WALL"));
-        String floor = Character.toString(this.symbols.get("FLOOR"));
         int doorPosW = getDoor("W");
         int doorPosE = getDoor("E");
         Point playerPos = new Point(-1, -1);
-
         if (isPlayerInRoom()) {
             playerPos = this.player.getXyLocation();
         }
-
         for (int i = 1; i < getHeight() - 1; i++) {
-
-            if (i == doorPosW) {
-                content = content + this.symbols.get("DOOR");
-            } else {
-                content = content + wall;
-            }
+            content = checkDoor(i, doorPosW, content);
             for (int j = 1; j < getWidth() - 1; j++) {
-                if (j == playerPos.getX() && i == playerPos.getY()) {
-                    content = content + this.symbols.get("PLAYER");
-                } else {
-                  // System.out.println(itemIsThere(i,j));
-                  content = content + this.symbols.get(itemIsThere(i, j));
-                }
+                content = checkPlayer(j, i, playerPos, content);
             }
-            if (i == doorPosE) {
-                content = content + this.symbols.get("DOOR");
-            } else {
-                content = content + wall;
-            }
-
+            content = checkDoor(i, doorPosE, content);
             content = content + "\n";
         }
         return (content);
+    }
+
+    /**
+    * verifies if a door is in this position if so add a door character.
+    * @param i
+    * @param doorPos
+    * @param content
+    * @return content updated string of characters that displays the room
+    */
+    public String checkDoor(int i, int doorPos, String content) {
+      String wall = Character.toString(this.symbols.get("EW_WALL"));
+      if (i == doorPos) {
+          content = content + this.symbols.get("DOOR");
+      } else {
+          content = content + wall;
+      }
+      return (content);
+    }
+
+    /**
+    * verifies if a player is in this position if so add a player character.
+    * @param i
+    * @param playerPos position of the player
+    * @param content
+    * @param j
+    * @return content updated string of characters that displays the room
+    */
+    public String checkPlayer(int j, int i, Point playerPos, String content) {
+      if (j == playerPos.getX() && i == playerPos.getY()) {
+          content = content + this.symbols.get("PLAYER");
+      } else {
+        content = content + this.symbols.get(itemIsThere(i, j));
+      }
+      return (content);
     }
 
     /**

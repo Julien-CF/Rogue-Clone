@@ -30,7 +30,7 @@
             "id": 2,
             "start": true,
             "height": 10,
-            "width": 20,
+            "width": 10,
             "doors": [{
                     "dir": "N",
                 	"con_room": 1,

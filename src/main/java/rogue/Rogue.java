@@ -69,7 +69,7 @@ public class Rogue {
         String wall = openWall(roomList.get(i));
         if (wall != null) {
           String oppWall = oppositeWall(wall);
-          newConnection(r, roomList.get(i), oppWall, wall, index, i);
+          newConnection(r, roomList.get(i), oppWall, wall);
           return (1);
         }
       }
@@ -80,43 +80,58 @@ public class Rogue {
 
     /**
     * connect the new door to a room with available space.
-    * @param currentRoom
-    * @param conRoom
+    * @param cur
+    * @param con
     * @param currentRoomWall
     * @param connectedRoomWall
-    * @param currentRoomIndex
-    * @param connectedRoomIndex
     */
-    public void newConnection(Room currentRoom, Room conRoom,
-                              String currentRoomWall, String connectedRoomWall,
-                              int currentRoomIndex, int connectedRoomIndex) {
+    public void newConnection(Room cur, Room con, String currentRoomWall, String connectedRoomWall) {
       Door currentRoomDoor = new Door();
       Door connectedRoomDoor = new Door();
       if (connectedRoomWall.equals("E") || connectedRoomWall.equals("W")) {
-        currentRoomDoor.setWallLoc(currentRoom.getHeight() / 2);
-        connectedRoomDoor.setWallLoc(conRoom.getHeight() / 2);
+        newConnectionWallPlace(true, currentRoomDoor, connectedRoomDoor, cur, con);
       } else {
-        currentRoomDoor.setWallLoc(currentRoom.getWidth() / 2);
-        connectedRoomDoor.setWallLoc(conRoom.getWidth() / 2);
+        newConnectionWallPlace(true, currentRoomDoor, connectedRoomDoor, cur, con);
       }
       currentRoomDoor.setWall(currentRoomWall);
       connectedRoomDoor.setWall(connectedRoomWall);
-      currentRoomDoor.setCurRoom(currentRoomIndex);
-      currentRoomDoor.setConRoom(connectedRoomIndex);
-      connectedRoomDoor.setCurRoom(connectedRoomIndex);
-      connectedRoomDoor.setConRoom(currentRoomIndex);
-      currentRoomDoor.connectRoom(currentRoom);
-      currentRoomDoor.connectRoom(conRoom);
-      connectedRoomDoor.connectRoom(conRoom);
-      connectedRoomDoor.connectRoom(currentRoom);
+      currentRoomDoor.connectRoom(cur);
+      currentRoomDoor.connectRoom(con);
+      connectedRoomDoor.connectRoom(con);
+      connectedRoomDoor.connectRoom(cur);
       currentRoomDoor.setExitDoor(connectedRoomDoor);
       connectedRoomDoor.setExitDoor(currentRoomDoor);
+      addNewDoor(currentRoomDoor, connectedRoomDoor);
+      cur.setDoor(currentRoomWall, currentRoomDoor);
+      con.setDoor(connectedRoomWall, connectedRoomDoor);
+    }
 
-      doorList.add(currentRoomDoor);
-      doorList.add(connectedRoomDoor);
+    /**
+    * add the new connection doors.
+    * @param a
+    * @param b
+    */
+    public void addNewDoor(Door a, Door b) {
+      doorList.add(a);
+      doorList.add(b);
+    }
 
-      currentRoom.setDoor(currentRoomWall, currentRoomDoor);
-      conRoom.setDoor(connectedRoomWall, connectedRoomDoor);
+    /**
+    * give the door its position on the wall.
+    * @param cur
+    * @param con
+    * @param curD
+    * @param conD
+    * @param check
+    */
+    public void newConnectionWallPlace(boolean check, Door curD, Door conD, Room cur, Room con) {
+      if (check) {
+        curD.setWallLoc(cur.getHeight() / 2);
+        conD.setWallLoc(con.getHeight() / 2);
+      } else {
+        curD.setWallLoc(cur.getHeight() / 2);
+        conD.setWallLoc(con.getHeight() / 2);
+      }
     }
 
     /**
@@ -417,6 +432,24 @@ public class Rogue {
     public String updateRoom(char input, Room r, String message) {
       int x = (int) r.getPlayer().getXyLocation().getX();
       int y = (int) r.getPlayer().getXyLocation().getY();
+      if (!(updatePlayerPosition(x, y, input, r))) {
+        message = "Can't move there, wall in way";
+        message = checkDoor(r, input, message);
+        return (message);
+      }
+      message = grabItem(r, message);
+      return (message);
+    }
+
+    /**
+    * updates the players position in the game.
+    * @param input players requested input
+    * @param r room to be updated
+    * @param x
+    * @param y
+    * @return (boolean) returns true if player position gets updated if not return false
+    */
+    public boolean updatePlayerPosition(int x, int y, char input, Room r) {
       if (input == 'w' && r.getPlayer().getXyLocation().getY() - 1 > 0) {
         Point newPoint = new Point(x, y - 1);
         r.getPlayer().setXyLocation(newPoint);
@@ -430,12 +463,9 @@ public class Rogue {
         Point newPoint = new Point(x + 1, y);
         r.getPlayer().setXyLocation(newPoint);
       } else {
-        message = "Can't move there, wall in way";
-        message = checkDoor(r, input, message);
-        return (message);
+        return false;
       }
-      message = grabItem(r, message);
-      return (message);
+      return true;
     }
 
     /**

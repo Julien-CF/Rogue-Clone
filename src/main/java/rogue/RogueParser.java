@@ -208,7 +208,6 @@ public class RogueParser {
         for (int j = 0; j < doorArray.size(); j++) {
             HashMap<String, String> newDoor = new HashMap<>();
             JSONObject doorObj = (JSONObject) doorArray.get(j);
-            String wallPos = doorObj.get("wall_pos").toString();
             newDoor.put("dir", String.valueOf(doorObj.get("dir")));
             newDoor.put("curRoom", roomJSON.get("id").toString());
             newDoor.put("con_room", doorObj.get("con_room").toString());
