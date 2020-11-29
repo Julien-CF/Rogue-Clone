@@ -9,10 +9,11 @@ import java.util.HashMap;
 
 public class Rogue {
 
-    public static final char UP = 'w';
-    public static final char DOWN = 's';
-    public static final char LEFT = 'a';
-    public static final char RIGHT = 'd';
+    public static final char UP = 't';
+    public static final char DOWN = 'g';
+    public static final char LEFT = 'f';
+    public static final char RIGHT = 'h';
+
 
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
@@ -254,11 +255,30 @@ public class Rogue {
     */
     public void addItem(Map<String, String> toAdd) {
       int roomIndex = Integer.parseInt(toAdd.get("room")) - 1;
-      Item newItem = buildItem(toAdd, roomList.get(roomIndex));
+      Item newItem = checkType(toAdd);
+      newItem = buildItem(toAdd, roomList.get(roomIndex), newItem);
       newItem = verifyItem(newItem, roomList.get(roomIndex));
       if (newItem != null) {
         itemList.add(newItem);
         roomList.get(roomIndex).addNewItem(newItem);
+      }
+    }
+
+    public Item checkType(Map<String, String> toAdd){
+      if("Food".equals(toAdd.get("type"))){
+        return (new Food());
+      } else if ("SmallFood".equals(toAdd.get("type"))) {
+        return (new SmallFood());
+      } else if ("Clothing".equals(toAdd.get("type"))){
+        return (new Clothing());
+      } else if ("Magic".equals(toAdd.get("type"))){
+        return (new Magic());
+      } else if ("Potion".equals(toAdd.get("type"))){
+        return (new Potion());
+      } else if ("Ring".equals(toAdd.get("type"))){
+        return (new Ring());
+      } else {
+        return(new Item());
       }
     }
 
@@ -267,7 +287,6 @@ public class Rogue {
     * @param parser parsed information
     */
     public void setSymbols(RogueParser parser) {
-
       this.symbols.put("PASSAGE", parser.getSymbol("PASSAGE"));
       this.symbols.put("DOOR", parser.getSymbol("DOOR"));
       this.symbols.put("FLOOR", parser.getSymbol("FLOOR"));
@@ -279,6 +298,9 @@ public class Rogue {
       this.symbols.put("SCROLL", parser.getSymbol("SCROLL"));
       this.symbols.put("ARMOR", parser.getSymbol("ARMOR"));
       this.symbols.put("FOOD", parser.getSymbol("FOOD"));
+      this.symbols.put("RING", parser.getSymbol("RING"));
+      this.symbols.put("SMALLFOOD", parser.getSymbol("SMALLFOOD"));
+      this.symbols.put("CLOTHING", parser.getSymbol("CLOTHING"));
     }
 
     /**
@@ -363,8 +385,7 @@ public class Rogue {
     * @param currentRoom the room the item will be put in
     * @return newItem retuns the newly created item
     */
-    public Item buildItem(Map<String, String> itemMap, Room currentRoom) {
-      Item newItem = new Item();
+    public Item buildItem(Map<String, String> itemMap, Room currentRoom, Item newItem) {
       Point xylocation = new Point(Integer.parseInt(itemMap.get("x")), Integer.parseInt(itemMap.get("y")));
       newItem.setXyLocation(xylocation);
       newItem.setCurrentRoom(currentRoom);
@@ -406,7 +427,7 @@ public class Rogue {
     * @return (boolean)
     */
     boolean checkTrue(String str) {
-      if (str.equals("true")) {
+      if ("true".equals(str)) {
         return (true);
       }
       return (false);
@@ -424,7 +445,9 @@ public class Rogue {
         throw new InvalidMoveException();
       }
       message = updateRoom(input, player.getCurrentRoom(), message);
-
+      if (message.equals("Can't move there, wall in way")){
+        throw new InvalidMoveException();
+      }
       updPlayerRoom();
       return (message);
     }
@@ -507,14 +530,17 @@ public class Rogue {
     public void goThroughDoor(Door entrance, Room r) {
       Room exit = entrance.getOtherRoom(r);
       Door exitDoor = entrance.getExitDoor();
-
       exit.setInRoom(true);
       exit.setPlayer(r.getPlayer());
       exit.getPlayer().setCurrentRoom(exit);
       placePlayer(exitDoor, exit);
-
       r.setInRoom(false);
       r.setPlayer(null);
+      for(int i = 0; i < roomList.size(); i++){
+        if(r.getId() == roomList.get(i).getId()){
+          roomList.get(i).setInRoom(false);
+        }
+      }
     }
 
     /**
@@ -547,8 +573,10 @@ public class Rogue {
     public String grabItem(Room r, String message) {
       for (int i = 0; i < r.getRoomItems().size(); i++) {
         if (r.getPlayer().getXyLocation().equals(r.getRoomItems().get(i).getXyLocation())) {
+          this.player.addItem(r.getRoomItems().get(i));
+          String item = r.getRoomItems().get(i).getName();
           r.getRoomItems().remove(i);
-           return ("Item grabbed");
+           return (item + " grabbed");
         }
       }
       return (message);

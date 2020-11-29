@@ -1,6 +1,8 @@
 package rogue;
 
 import java.awt.Point;
+import java.util.ArrayList;
+
 /*
  * The player character
  */
@@ -9,6 +11,8 @@ public class Player {
 private Room currentRoom;
 private String name;
 private Point position;
+private ArrayList<Item> inventory = new ArrayList<Item>();
+
 
     // Default constructor
     /**
@@ -24,7 +28,20 @@ private Point position;
     * @param newName name of the player
     */
     public Player(String newName) {
-        this.name = name;
+        this.name = newName;
+    }
+
+    public void addItem(Item newItem){
+      this.inventory.add(newItem);
+    }
+
+    public String[] getInventory(){
+      int size = this.inventory.size();
+      String list[] = new String[this.inventory.size()];
+      for (int i = 0; i < this.inventory.size(); i++){
+        list[i] = this.inventory.get(i).getName();
+      }
+      return (list);
     }
 
     /**

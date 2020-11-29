@@ -18,7 +18,7 @@ public class Room  {
     private HashMap<String, Door> door = new HashMap<>();
     private HashMap<String, Integer> doorLocations = new HashMap<>();
     private HashMap<String, Character> symbols = new HashMap<>();
-    private boolean inRoom = false;
+    private boolean inRoom;
     private Player player;
 
     // Default constructor
@@ -154,6 +154,7 @@ public class Room  {
     */
     public void setPlayer(Player newPlayer) {
         this.player = newPlayer;
+        this.inRoom = true;
     }
 
     /**
@@ -186,7 +187,11 @@ public class Room  {
     * @param location location on wall added to the room
     */
     public void setDoor(String direction, int location) {
-        this.doorLocations.put(direction, location);
+        // this.doorLocations.put(direction, location);
+        Door d = new Door();
+        d.setWall(direction);
+        d.setWallLoc(location);
+        this.door.put(direction, d);
     }
 
     /**
@@ -335,6 +340,10 @@ public class Room  {
           }
         }
       }
+    }
+
+    public void checkItem(Item toAdd){
+
     }
 
     /**
