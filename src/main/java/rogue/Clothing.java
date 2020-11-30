@@ -5,6 +5,6 @@ public class Clothing extends Item implements Wearable {
 
   }
   public String wear() {
-    return(null);
+    return(getDescription());
   }
 }

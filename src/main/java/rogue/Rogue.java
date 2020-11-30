@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.awt.Point;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.Serializable;
 
 
+public class Rogue implements Serializable {
 
-public class Rogue {
-
-    public static final char UP = 't';
-    public static final char DOWN = 'g';
-    public static final char LEFT = 'f';
-    public static final char RIGHT = 'h';
-
+    public static final char UP = 'y';
+    public static final char DOWN = 'h';
+    public static final char LEFT = 'g';
+    public static final char RIGHT = 'j';
 
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
@@ -441,8 +440,13 @@ public class Rogue {
     */
     public String makeMove(char input) throws InvalidMoveException {
       String message = "Move made";
-      if (input != 'w' && input != 'a' && input != 's' && input != 'd') {
-        throw new InvalidMoveException();
+      if (input != 'y' && input != 'g' && input != 'h' && input != 'j') {
+        if(input == 'w' || input == 'e' || input == 't'){
+          message = this.player.getMessage();
+          return(message);
+        } else {
+          throw new InvalidMoveException();
+        }
       }
       message = updateRoom(input, player.getCurrentRoom(), message);
       if (message.equals("Can't move there, wall in way")){
@@ -480,16 +484,16 @@ public class Rogue {
     * @return (boolean) returns true if player position gets updated if not return false
     */
     public boolean updatePlayerPosition(int x, int y, char input, Room r) {
-      if (input == 'w' && r.getPlayer().getXyLocation().getY() - 1 > 0) {
+      if (input == 'y' && r.getPlayer().getXyLocation().getY() - 1 > 0) {
         Point newPoint = new Point(x, y - 1);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 's' && r.getPlayer().getXyLocation().getY() + 1 < r.getHeight() - 1) {
+      } else if (input == 'h' && r.getPlayer().getXyLocation().getY() + 1 < r.getHeight() - 1) {
         Point newPoint = new Point(x, y + 1);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 'a' && r.getPlayer().getXyLocation().getX() - 1 > 0) {
+      } else if (input == 'g' && r.getPlayer().getXyLocation().getX() - 1 > 0) {
         Point newPoint = new Point(x - 1, y);
         r.getPlayer().setXyLocation(newPoint);
-      } else if (input == 'd' && r.getPlayer().getXyLocation().getX() + 1 < r.getWidth() - 1) {
+      } else if (input == 'j' && r.getPlayer().getXyLocation().getX() + 1 < r.getWidth() - 1) {
         Point newPoint = new Point(x + 1, y);
         r.getPlayer().setXyLocation(newPoint);
       } else {
@@ -506,16 +510,16 @@ public class Rogue {
     * @return message describes the next move
     */
     public String checkDoor(Room r, char input, String message) {
-      if (input == 'w' && r.getPlayer().getXyLocation().getX() == r.getDoor("N")) {
+      if (input == 'y' && r.getPlayer().getXyLocation().getX() == r.getDoor("N")) {
         goThroughDoor(r.getFullDoor("N"), r);
         return ("Gone through Door");
-      } else if (input == 's' && r.getPlayer().getXyLocation().getX() == r.getDoor("S")) {
+      } else if (input == 'h' && r.getPlayer().getXyLocation().getX() == r.getDoor("S")) {
         goThroughDoor(r.getFullDoor("S"), r);
         return ("Gone through door");
-      } else if (input == 'a' && r.getPlayer().getXyLocation().getY() == r.getDoor("W")) {
+      } else if (input == 'g' && r.getPlayer().getXyLocation().getY() == r.getDoor("W")) {
         goThroughDoor(r.getFullDoor("W"), r);
         return ("Gone through door");
-      } else if (input == 'd' && r.getPlayer().getXyLocation().getY() == r.getDoor("E")) {
+      } else if (input == 'j' && r.getPlayer().getXyLocation().getY() == r.getDoor("E")) {
         goThroughDoor(r.getFullDoor("E"), r);
         return ("Gone through door");
       }
@@ -603,6 +607,68 @@ public class Rogue {
           player.setXyLocation(roomList.get(i).getPlayer().getXyLocation());
         }
       }
+    }
+
+    public void useItem(char input, int indexOfItem){
+      if(input == 'e'){
+        eat(indexOfItem);
+      } else if (input == 'w') {
+        wear(indexOfItem);
+      } else if (input == 't'){
+        toss(indexOfItem);
+      }
+    }
+
+    private void eat(int index){
+      String message;
+        if(player.getInventory().get(index) instanceof Potion){
+           message = ((Potion) player.getInventory().get(index)).eat();
+          player.getInventory().remove(player.getInventory().get(index));
+        } else if (player.getInventory().get(index) instanceof Food){
+           message = ((Food) player.getInventory().get(index)).eat();
+          player.getInventory().remove(player.getInventory().get(index));
+        } else if (player.getInventory().get(index) instanceof SmallFood){
+          message = ((SmallFood) player.getInventory().get(index)).eat();
+         player.getInventory().remove(player.getInventory().get(index));
+        }
+        else{
+          message = "Although you probably can you shouldn't eat a " + player.getInventory().get(index).getName();
+        }
+        player.setMessage(message);
+    }
+
+    private void wear(int index){
+      String message;
+        if(player.getInventory().get(index) instanceof Clothing){
+           message = ((Clothing) player.getInventory().get(index)).wear();
+          player.equipItem(index);
+        } else if (player.getInventory().get(index) instanceof Ring){
+           message = ((Ring) player.getInventory().get(index)).wear();
+          player.equipItem(index);
+        } else{
+          message = player.getInventory().get(index).getName() + " is not Clothing";
+        }
+        player.setMessage(message);
+    }
+
+    public void toss(int index){
+      String message;
+        if(player.getInventory().get(index) instanceof SmallFood){
+           message = ((SmallFood) player.getInventory().get(index)).toss();
+           throwItem(index);
+        } else if (player.getInventory().get(index) instanceof Potion){
+           message = ((Potion) player.getInventory().get(index)).toss();
+           throwItem(index);
+        } else{
+          message = "Stop trying to throw the " + player.getInventory().get(index).getName();
+        }
+        player.setMessage(message);
+    }
+
+    public void throwItem(int index){
+      player.getInventory().get(index).setXyLocation(player.getXyLocation());
+      player.getCurrentRoom().addNewItem(player.getInventory().get(index));
+      player.getInventory().remove(index);
     }
 
 }

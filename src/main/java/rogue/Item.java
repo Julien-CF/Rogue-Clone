@@ -1,11 +1,12 @@
 package rogue;
 import java.awt.Point;
+import java.io.Serializable;
 
 /**
  * A basic Item class; basic functionality for both consumables and equipment.
  */
 
-public class Item  {
+public class Item implements Serializable {
 
 private int id;
 private String name;

@@ -3,13 +3,13 @@ import java.util.ArrayList;
 
 import java.awt.Point;
 import java.util.HashMap;
-
+import java.io.Serializable;
 
 /**
  * A room within the dungeon - contains monsters, treasure,
  * doors out, etc.
  */
-public class Room  {
+public class Room implements Serializable {
 
     private int id;
     private int height;

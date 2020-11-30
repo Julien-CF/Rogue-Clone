@@ -5,6 +5,9 @@ public class SmallFood extends Food implements Tossable {
 
   }
   public String toss() {
-    return(null);
+    return(getDescription());
+  }
+  public String eat(){
+    return(getDescription());
   }
 }

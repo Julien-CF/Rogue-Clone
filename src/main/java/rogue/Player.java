@@ -2,16 +2,18 @@ package rogue;
 
 import java.awt.Point;
 import java.util.ArrayList;
-
+import java.io.Serializable;
 /*
  * The player character
  */
-public class Player {
+public class Player implements Serializable {
 
 private Room currentRoom;
 private String name;
 private Point position;
 private ArrayList<Item> inventory = new ArrayList<Item>();
+private ArrayList<Item> equipped = new ArrayList<Item>();
+private String message = null;
 
 
     // Default constructor
@@ -35,13 +37,38 @@ private ArrayList<Item> inventory = new ArrayList<Item>();
       this.inventory.add(newItem);
     }
 
-    public String[] getInventory(){
-      int size = this.inventory.size();
+    public void equipItem(int index){
+      System.out.println(index);
+      this.equipped.add(this.inventory.get(index));
+      this.inventory.remove(index);
+    }
+
+    public String[] getInventoryStrings(){
       String list[] = new String[this.inventory.size()];
       for (int i = 0; i < this.inventory.size(); i++){
         list[i] = this.inventory.get(i).getName();
       }
       return (list);
+    }
+
+    public String[] getEquippedStrings(){
+      String list[] = new String[this.equipped.size()];
+      for (int i = 0; i < this.equipped.size(); i++){
+        list[i] = this.equipped.get(i).getName();
+      }
+      return (list);
+    }
+
+    public ArrayList<Item> getInventory(){
+      return(this.inventory);
+    }
+
+    public void setMessage(String newMessage){
+        this.message = newMessage;
+    }
+
+    public String getMessage(){
+      return(this.message);
     }
 
     /**

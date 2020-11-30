@@ -34,8 +34,15 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Component;
 import javax.swing.BorderFactory;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 
-public class WindowUI extends JFrame {
+public class WindowUI extends JFrame implements ActionListener {
 
 
     private SwingTerminal terminal;
@@ -50,7 +57,12 @@ public class WindowUI extends JFrame {
    private final char roomRow = 3;
    private Container contentPane;
    private JLabel messageLabel = new JLabel("Welcome to ROGUE!!!!!!");
-
+   private JList inventory;
+   private int indexOfItem = -1;
+   private JFrame promptFrame = new JFrame();
+   private JLabel playerName = new JLabel();
+   private JFileChooser fc = new JFileChooser();
+   private Rogue theGame = new Rogue();
 
 /**
 Constructor.
@@ -77,7 +89,7 @@ Constructor.
         JPanel terminalPanel = new JPanel();
         terminal = new SwingTerminal();
         terminalPanel.add(terminal);
-        contentPane.add(terminalPanel,constraints(0,1,1,1));
+        contentPane.add(terminalPanel,constraints(0,1,2,2));
     }
 
     private void setUpPanels(){
@@ -85,6 +97,9 @@ Constructor.
         setUpLabelPanel(labelPanel);
         setTerminal();
         initiateInventory();
+        initiateEquipped();
+        setMenu();
+        setPlayerPanel();
     }
 
     private void initiateInventory(){
@@ -93,8 +108,20 @@ Constructor.
       inventoryPanel.setLayout(layout);
       inventoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
       inventoryPanel.setBorder(BorderFactory.createTitledBorder("Inventory"));
-      inventoryPanel.setPreferredSize(new Dimension(125, 300));
-      contentPane.add(inventoryPanel, constraints(1,1,1,1));
+      inventoryPanel.setPreferredSize(new Dimension(135, 225));
+      inventoryPanel.setBackground(Color.LIGHT_GRAY);
+      contentPane.add(inventoryPanel, constraints(2,1,1,1));
+    }
+
+    private void initiateEquipped(){
+      JPanel equippedPanel = new JPanel();
+      BoxLayout layout = new BoxLayout(equippedPanel,BoxLayout.Y_AXIS);
+      equippedPanel.setLayout(layout);
+      equippedPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+      equippedPanel.setBorder(BorderFactory.createTitledBorder("Equipped"));
+      equippedPanel.setPreferredSize(new Dimension(135, 150));
+      equippedPanel.setBackground(Color.LIGHT_GRAY);
+      contentPane.add(equippedPanel, constraints(2,2,1,1));
     }
 
     private void setUpLabelPanel(JPanel thePanel){
@@ -102,9 +129,28 @@ Constructor.
         thePanel.setBorder(prettyLine);
         thePanel.setPreferredSize(new Dimension(100,35));
         messageLabel.setBackground(Color.LIGHT_GRAY);
-        messageLabel.setPreferredSize(new Dimension(300, 27));
+        messageLabel.setPreferredSize(new Dimension(400, 25));
         thePanel.add(messageLabel);
-        contentPane.add(thePanel, constraints(0,0,1,1));
+
+        contentPane.add(thePanel, constraints(1,0,1,1));
+    }
+
+    public void setPlayerPanel(){
+        JPanel panel = new JPanel();
+        JLabel label = new JLabel("Player : ");
+        panel.setLayout(new BorderLayout());
+        panel.add(playerName, BorderLayout.CENTER);
+        panel.add(label, BorderLayout.WEST);
+        contentPane.add(panel, constraints(2,0,1,1));
+
+    }
+
+    public void setPlayerName(String newName){
+      this.playerName.setText(newName);
+    }
+
+    public String getPlayerName(){
+      return(this.playerName.getText());
     }
 
     private void start() {
@@ -147,6 +193,53 @@ Prints a string to the screen starting at the indicated column and row.
         }
         }
 
+        public boolean checkAction(char input){
+          if (input == 'w' || input == 'e' || input == 't'){
+            promptUser();
+            return(true);
+          }
+          return(false);
+        }
+
+        public void promptUser(){
+          int index = -1;
+          promptFrame = new JFrame();
+          promptFrame.setSize(200,400);
+          promptFrame.setLocationRelativeTo(contentPane);
+          JLabel label = new JLabel("Choose an Item");
+          JButton button = new JButton("Okay");
+          JPanel panel = new JPanel();
+          BoxLayout layout = new BoxLayout(panel,BoxLayout.Y_AXIS);
+          panel.setLayout(layout);
+          button.addActionListener(this);
+          panel.add(label);
+          panel.add(inventory);
+          panel.add(button);
+          promptFrame.add(panel);
+          promptFrame.setVisible(true);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          indexOfItem = inventory.getSelectedIndex();
+          promptFrame.setVisible(false);
+        }
+
+        public int getIndexOfItem(){
+          return(this.indexOfItem);
+        }
+
+        public void setIndexOfItem(int i){
+            this.indexOfItem = i;
+        }
+
+        public Rogue getRogue(){
+          return(this.theGame);
+        }
+
+        public void setRogue(Rogue game){
+          this.theGame = game;
+        }
 /**
 Changes the message at the top of the screen for the user.
 @param msg the message to be displayed
@@ -163,6 +256,7 @@ Redraws the whole screen including the room and the message.
             public void draw(String message, String room) {
 
                 try {
+                    setPlayerPanel();
                     terminal.clearScreen();
                     putString(room, startCol, roomRow);
                     setMessage(message);
@@ -171,8 +265,51 @@ Redraws the whole screen including the room and the message.
                 } catch (IOException e) {
 
                 }
+            }
 
-        }
+            public void setMenu(){
+              JPanel panel = new JPanel();
+              panel.setLayout(new BorderLayout());
+              JMenuBar menuBar = new JMenuBar();
+              menuBar.setPreferredSize(new Dimension(55,10));
+              JMenu menu = new JMenu("Options");
+              JMenuItem name = new JMenuItem("Change player name");
+              name.addActionListener(ev -> changeName());
+              JMenuItem json = new JMenuItem("Load JSON file");
+              JMenuItem game = new JMenuItem("Load saved game");
+              JMenuItem save = new JMenuItem("Save game");
+              save.addActionListener(ev -> save());
+              menu.add(name);
+              menu.add(json);
+              menu.add(game);
+              menu.add(save);
+              menuBar.add(menu);
+              panel.add(menuBar, BorderLayout.CENTER);
+              contentPane.add(panel, constraints(0,0,1,1));
+            }
+
+            public void changeName(){
+              playerName.setText(JOptionPane.showInputDialog(this, "Enter new name"));
+            }
+
+            public void save(){
+              if(fc.showSaveDialog(this.contentPane) == JFileChooser.APPROVE_OPTION){
+                try{
+                  FileOutputStream outPutStream = new FileOutputStream(fc.getSelectedFile());
+                  ObjectOutputStream outPutDest = new ObjectOutputStream(outPutStream);
+
+                  outPutDest.writeObject(theGame);
+                  outPutDest.close();
+                  outPutStream.close();
+                  JFrame f = new JFrame();
+                  JOptionPane.showMessageDialog(f, "Succesfully saved to:" + fc.getSelectedFile());
+                } catch (IOException e){
+                  JFrame f = new JFrame();
+                  JOptionPane.showMessageDialog(f, "Failed to saved to:" + fc.getSelectedFile());
+                }
+
+              }
+            }
 
 /**
 Obtains input from the user and returns it as a char.  Converts arrow
@@ -209,15 +346,32 @@ keys to the equivalent movement keys in rogue.
         JPanel inventoryPanel = new JPanel();
         BoxLayout layout = new BoxLayout(inventoryPanel,BoxLayout.Y_AXIS);
         inventoryPanel.setLayout(layout);
-        inventoryPanel.setPreferredSize(new Dimension(100, 300));
-        JList inventory = new JList(list);
+        inventoryPanel.setPreferredSize(new Dimension(135, 225));
+        inventory = new JList(list);
         inventory.setFixedCellWidth(125);
         inventory.setFixedCellHeight(20);
         inventory.setBackground(Color.LIGHT_GRAY);
         inventoryPanel.add(inventory);
         inventoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         inventoryPanel.setBorder(BorderFactory.createTitledBorder("Inventory"));
-        contentPane.add(inventoryPanel, constraints(1,1,1,1));
+        inventoryPanel.setBackground(Color.LIGHT_GRAY);
+        contentPane.add(inventoryPanel, constraints(2,1,1,1));
+    }
+
+    public void setEquipped(String list[]){
+        JPanel equippedPanel = new JPanel();
+        BoxLayout layout = new BoxLayout(equippedPanel,BoxLayout.Y_AXIS);
+        equippedPanel.setLayout(layout);
+        equippedPanel.setPreferredSize(new Dimension(135, 150));
+        JList equipped = new JList(list);
+        equipped.setFixedCellWidth(125);
+        equipped.setFixedCellHeight(20);
+        equipped.setBackground(Color.LIGHT_GRAY);
+        equippedPanel.add(equipped);
+        equippedPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        equippedPanel.setBorder(BorderFactory.createTitledBorder("Equipped"));
+        equippedPanel.setBackground(Color.LIGHT_GRAY);
+        contentPane.add(equippedPanel, constraints(2,2,1,1));
     }
 
 /**
@@ -233,32 +387,45 @@ The controller method for making the game logic work.
     //allocate memory for the GUI
     WindowUI theGameUI = new WindowUI();
     // allocate memory for the game and set it up
-    Rogue theGame = new Rogue(parser);
+    Rogue initialGame = new Rogue(parser);
+    theGameUI.setRogue(initialGame);
    //set up the initial game display
     Player thePlayer = new Player("Judi");
-    theGame.setPlayer(thePlayer);
-    System.out.println(theGame.getPlayer().getName());
+    theGameUI.getRogue().setPlayer(thePlayer);
+    theGameUI.setPlayerName(theGameUI.getRogue().getPlayer().getName());
     message = "Welcome to my Rogue game";
-    theGameUI.draw(message, theGame.getNextDisplay());
-    theGameUI.setInventory(thePlayer.getInventory());
+    theGameUI.draw(message, theGameUI.getRogue().getNextDisplay());
+    theGameUI.setInventory(thePlayer.getInventoryStrings());
+    theGameUI.setEquipped(thePlayer.getEquippedStrings());
     theGameUI.setVisible(true);
 
     while (userInput != 'q') {
     //get input from the user
     userInput = theGameUI.getInput();
-
+    if(theGameUI.checkAction(userInput)){
+      message = "Input c on keyboard to apply changes";
+      theGameUI.draw(message, theGameUI.getRogue().getNextDisplay());
+      while(theGameUI.getInput() != 'c'){
+        message = "Input c on keyboard to apply changes";
+        theGameUI.draw(message, theGameUI.getRogue().getNextDisplay());
+      }
+      theGameUI.getRogue().useItem(userInput, theGameUI.getIndexOfItem());
+      theGameUI.setInventory(thePlayer.getInventoryStrings());
+      theGameUI.setEquipped(thePlayer.getEquippedStrings());
+      theGameUI.setIndexOfItem(-1);
+    }
+    theGameUI.getRogue().getPlayer().setName(theGameUI.getPlayerName());
     //ask the game if the user can move there
     try {
-        message = theGame.makeMove(userInput);
-        theGameUI.setInventory(thePlayer.getInventory());
-        theGameUI.draw(message, theGame.getNextDisplay());
+        message = theGameUI.getRogue().makeMove(userInput);
+        theGameUI.setInventory(thePlayer.getInventoryStrings());
+        theGameUI.setEquipped(thePlayer.getEquippedStrings());
+        theGameUI.draw(message, theGameUI.getRogue().getNextDisplay());
     } catch (InvalidMoveException badMove) {
         message = "I didn't understand what you meant, please enter a command";
-        theGameUI.draw(message, theGame.getNextDisplay());
+        theGameUI.draw(message, theGameUI.getRogue().getNextDisplay());
     }
     }
-
-
     }
 
 }

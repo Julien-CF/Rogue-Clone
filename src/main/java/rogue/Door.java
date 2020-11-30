@@ -1,8 +1,8 @@
 package rogue;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-
-public class Door {
+public class Door implements Serializable {
 
   private ArrayList<Room> roomList = new ArrayList<Room>();
   private int wallLoc;

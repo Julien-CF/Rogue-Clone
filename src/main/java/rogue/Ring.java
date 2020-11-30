@@ -5,6 +5,6 @@ public class Ring extends Magic implements Wearable {
 
   }
   public String wear() {
-    return(null);
+    return(getDescription());
   }
 }

@@ -1,19 +1,19 @@
 {
     "symbols": [
         {
-            "name": "PASSAGE", 
+            "name": "PASSAGE",
             "symbol": "#"
         },
         {
-            "name": "DOOR", 
+            "name": "DOOR",
             "symbol": "+"
         },
         {
-            "name": "FLOOR", 
+            "name": "FLOOR",
             "symbol": "."
         },
         {
-            "name": "PLAYER", 
+            "name": "PLAYER",
             "symbol": "@"
         },
         {
@@ -37,13 +37,20 @@
             "symbol": "?"
         },
                 {
-            "name": "ARMOR",
+            "name": "CLOTHING",
             "symbol": "]"
         },
                        {
             "name": "FOOD",
             "symbol": ":"
         },
-                         
+        {
+            "name": "RING",
+            "symbol": "^"
+        },
+        {
+            "name": "SMALLFOOD",
+            "symbol": ";"
+        },
     ]
 }

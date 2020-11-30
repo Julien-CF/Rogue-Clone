@@ -5,9 +5,9 @@ public class Potion extends Magic implements Edible, Tossable {
 
   }
   public String eat() {
-    return(null);
+    return(getDescription());
   }
   public String toss() {
-    return(null);
+    return(getDescription());
   }
 }
