@@ -38,7 +38,7 @@ jar {
 }
 
 shadowJar {
-   archiveBaseName = 'A2'
+   archiveBaseName = 'A3'
    classifier = ''
    archiveVersion = ''
 
