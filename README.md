@@ -10,4 +10,4 @@ misconduct
 
 Additional functionality:
 
-the W A S D keys were binded for movement. W for Up, S for down, A for left D for right.
+the T G F H keys were binded for movement. T for Up, G for down, F for left H for right. Another edition after choosing an item to use in the popup menu you will be prompted to press c to continue and add the effects to your player.
