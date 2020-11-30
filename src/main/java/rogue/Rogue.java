@@ -17,9 +17,10 @@ public class Rogue implements Serializable {
     private ArrayList<Room> roomList = new ArrayList<Room>();
     private ArrayList<Item> itemList = new ArrayList<Item>();
     private ArrayList<Door> doorList = new ArrayList<Door>();
-    private RogueParser rogueParser;
+    private transient RogueParser rogueParser;
     private Player player = new Player("Default");
     private HashMap<String, Character> symbols = new HashMap<>();
+    private int exception = 0;
 
     /**
     * initializes rogueParser.
@@ -66,6 +67,14 @@ public class Rogue implements Serializable {
     }
 
     /**
+    * getter for integer exception.
+    * @return this.exception
+    */
+    public int getException() {
+      return (this.exception);
+    }
+
+    /**
     * fix the room given by creating a new door and linking it.
     * @param r room to be fixed
     * @param index
@@ -81,7 +90,7 @@ public class Rogue implements Serializable {
         }
       }
       System.out.println("dungeon file cannot be used");
-      System.exit(-1);
+      this.exception = 1;
       return (-1);
     }
 
@@ -263,21 +272,26 @@ public class Rogue implements Serializable {
       }
     }
 
-    public Item checkType(Map<String, String> toAdd){
-      if("Food".equals(toAdd.get("type"))){
+    /**
+    * check what subclass the item belongs too.
+    * @param toAdd
+    * @return (new Item())
+    */
+    public Item checkType(Map<String, String> toAdd) {
+      if ("Food".equals(toAdd.get("type"))) {
         return (new Food());
       } else if ("SmallFood".equals(toAdd.get("type"))) {
         return (new SmallFood());
-      } else if ("Clothing".equals(toAdd.get("type"))){
+      } else if ("Clothing".equals(toAdd.get("type"))) {
         return (new Clothing());
-      } else if ("Magic".equals(toAdd.get("type"))){
+      } else if ("Magic".equals(toAdd.get("type"))) {
         return (new Magic());
-      } else if ("Potion".equals(toAdd.get("type"))){
+      } else if ("Potion".equals(toAdd.get("type"))) {
         return (new Potion());
-      } else if ("Ring".equals(toAdd.get("type"))){
+      } else if ("Ring".equals(toAdd.get("type"))) {
         return (new Ring());
       } else {
-        return(new Item());
+        return (new Item());
       }
     }
 
@@ -382,6 +396,7 @@ public class Rogue implements Serializable {
     * Function used to build an item with all the elements it needs.
     * @param itemMap a map that contains all the information to be stored
     * @param currentRoom the room the item will be put in
+    * @param newItem item to build
     * @return newItem retuns the newly created item
     */
     public Item buildItem(Map<String, String> itemMap, Room currentRoom, Item newItem) {
@@ -441,15 +456,15 @@ public class Rogue implements Serializable {
     public String makeMove(char input) throws InvalidMoveException {
       String message = "Move made";
       if (input != 'y' && input != 'g' && input != 'h' && input != 'j') {
-        if(input == 'w' || input == 'e' || input == 't'){
+        if (input == 'w' || input == 'e' || input == 't') {
           message = this.player.getMessage();
-          return(message);
+          return (message);
         } else {
           throw new InvalidMoveException();
         }
       }
       message = updateRoom(input, player.getCurrentRoom(), message);
-      if (message.equals("Can't move there, wall in way")){
+      if (message.equals("Can't move there, wall in way")) {
         throw new InvalidMoveException();
       }
       updPlayerRoom();
@@ -540,8 +555,8 @@ public class Rogue implements Serializable {
       placePlayer(exitDoor, exit);
       r.setInRoom(false);
       r.setPlayer(null);
-      for(int i = 0; i < roomList.size(); i++){
-        if(r.getId() == roomList.get(i).getId()){
+      for (int i = 0; i < roomList.size(); i++) {
+        if (r.getId() == roomList.get(i).getId()) {
           roomList.get(i).setInRoom(false);
         }
       }
@@ -609,63 +624,67 @@ public class Rogue implements Serializable {
       }
     }
 
-    public void useItem(char input, int indexOfItem){
-      if(input == 'e'){
+    /**
+    * check what action to perform on the item.
+    * @param input
+    * @param indexOfItem
+    */
+    public void useItem(char input, int indexOfItem) {
+      if (input == 'e') {
         eat(indexOfItem);
       } else if (input == 'w') {
         wear(indexOfItem);
-      } else if (input == 't'){
+      } else if (input == 't') {
         toss(indexOfItem);
       }
     }
 
-    private void eat(int index){
+    private void eat(int index) {
       String message;
-        if(player.getInventory().get(index) instanceof Potion){
+        if (player.getInventory().get(index) instanceof Potion) {
            message = ((Potion) player.getInventory().get(index)).eat();
           player.getInventory().remove(player.getInventory().get(index));
-        } else if (player.getInventory().get(index) instanceof Food){
+        } else if (player.getInventory().get(index) instanceof Food) {
            message = ((Food) player.getInventory().get(index)).eat();
           player.getInventory().remove(player.getInventory().get(index));
-        } else if (player.getInventory().get(index) instanceof SmallFood){
+        } else if (player.getInventory().get(index) instanceof SmallFood) {
           message = ((SmallFood) player.getInventory().get(index)).eat();
          player.getInventory().remove(player.getInventory().get(index));
-        }
-        else{
+        } else {
           message = "Although you probably can you shouldn't eat a " + player.getInventory().get(index).getName();
         }
         player.setMessage(message);
     }
 
-    private void wear(int index){
+    private void wear(int index) {
       String message;
-        if(player.getInventory().get(index) instanceof Clothing){
+        if (player.getInventory().get(index) instanceof Clothing) {
            message = ((Clothing) player.getInventory().get(index)).wear();
           player.equipItem(index);
-        } else if (player.getInventory().get(index) instanceof Ring){
+        } else if (player.getInventory().get(index) instanceof Ring) {
            message = ((Ring) player.getInventory().get(index)).wear();
           player.equipItem(index);
-        } else{
+        } else {
           message = player.getInventory().get(index).getName() + " is not Clothing";
         }
         player.setMessage(message);
     }
 
-    public void toss(int index){
+    private void toss(int index) {
       String message;
-        if(player.getInventory().get(index) instanceof SmallFood){
+        if (player.getInventory().get(index) instanceof SmallFood) {
            message = ((SmallFood) player.getInventory().get(index)).toss();
            throwItem(index);
-        } else if (player.getInventory().get(index) instanceof Potion){
+        } else if (player.getInventory().get(index) instanceof Potion) {
            message = ((Potion) player.getInventory().get(index)).toss();
            throwItem(index);
-        } else{
+        } else {
           message = "Stop trying to throw the " + player.getInventory().get(index).getName();
         }
         player.setMessage(message);
     }
 
-    public void throwItem(int index){
+    private void throwItem(int index) {
       player.getInventory().get(index).setXyLocation(player.getXyLocation());
       player.getCurrentRoom().addNewItem(player.getInventory().get(index));
       player.getInventory().remove(index);

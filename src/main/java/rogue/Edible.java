@@ -1,5 +1,9 @@
 package rogue;
 
 public interface Edible {
-  public String eat();
+  /**
+  * calls to descrption of item.
+  * @return (String)
+  */
+  String eat();
 }

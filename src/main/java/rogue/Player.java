@@ -33,42 +33,70 @@ private String message = null;
         this.name = newName;
     }
 
-    public void addItem(Item newItem){
+    /**
+    * Adds an item to the players inventory.
+    * @param newItem item to be added
+    */
+    public void addItem(Item newItem) {
       this.inventory.add(newItem);
     }
 
-    public void equipItem(int index){
+    /**
+    * Move an item from an inventory to the equipped list.
+    * @param index the index of the item to be moved
+    */
+    public void equipItem(int index) {
       System.out.println(index);
       this.equipped.add(this.inventory.get(index));
       this.inventory.remove(index);
     }
 
-    public String[] getInventoryStrings(){
-      String list[] = new String[this.inventory.size()];
-      for (int i = 0; i < this.inventory.size(); i++){
+    /**
+    * converts list of items in inventory to an array of strings.
+    * @return list array of strings
+    */
+    public String[] getInventoryStrings() {
+      String[] list = new String[this.inventory.size()];
+      for (int i = 0; i < this.inventory.size(); i++) {
         list[i] = this.inventory.get(i).getName();
       }
       return (list);
     }
 
-    public String[] getEquippedStrings(){
-      String list[] = new String[this.equipped.size()];
-      for (int i = 0; i < this.equipped.size(); i++){
+    /**
+    * converts list of equipped items to an array of strings.
+    * @return list array of strings
+    */
+    public String[] getEquippedStrings() {
+      String[] list = new String[this.equipped.size()];
+      for (int i = 0; i < this.equipped.size(); i++) {
         list[i] = this.equipped.get(i).getName();
       }
       return (list);
     }
 
-    public ArrayList<Item> getInventory(){
-      return(this.inventory);
+    /**
+    * get the arrayList inventory.
+    * @return (arrayList<Item>)
+    */
+    public ArrayList<Item> getInventory() {
+      return (this.inventory);
     }
 
-    public void setMessage(String newMessage){
+    /**
+    * Set the message the player holds.
+    * @param newMessage
+    */
+    public void setMessage(String newMessage) {
         this.message = newMessage;
     }
 
-    public String getMessage(){
-      return(this.message);
+    /**
+    * get the held message from the player.
+    * @return this.message
+    */
+    public String getMessage() {
+      return (this.message);
     }
 
     /**
@@ -117,5 +145,14 @@ private String message = null;
     */
     public void setCurrentRoom(Room newRoom) {
         this.currentRoom = newRoom;
+    }
+
+    /**
+    * empty the players inventory.
+    */
+    public void emptyInventory() {
+      for (int i = 0; i < inventory.size(); i++) {
+        inventory.remove(0);
+      }
     }
 }

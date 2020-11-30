@@ -3,19 +3,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import java.io.Serializable;
 
-public class RogueParser implements Serializable {
+public class RogueParser {
 
     private ArrayList<Map<String, String>> rooms = new ArrayList<>();
     private ArrayList<Map<String, String>> items = new ArrayList<>();
@@ -35,6 +31,22 @@ public class RogueParser implements Serializable {
     public RogueParser() {
 
 
+    }
+
+    /**
+    * Constructor for when only room file is given.
+    * @param roomFile the file to parse
+    * @param t boolean to differentiate the constructors.
+    */
+    public RogueParser(String roomFile, Boolean t) {
+      String symbolsFileLocation = getFileLocation("fileLocations.json", "Symbols");
+      JSONObject roomsJSON = createObject(roomFile);
+      JSONObject symbolsJSON = createObject(symbolsFileLocation);
+      extractRoomInfo(roomsJSON);
+      extractItemInfo(roomsJSON);
+      extractSymbolInfo(symbolsJSON);
+      roomIterator = rooms.iterator();
+      itemIterator = itemLocations.iterator();
     }
 
     /**

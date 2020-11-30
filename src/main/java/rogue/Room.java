@@ -342,10 +342,6 @@ public class Room implements Serializable {
       }
     }
 
-    public void checkItem(Item toAdd){
-
-    }
-
     /**
     * verifies the room is complete and has at least one door.
     * @return true if room is complete

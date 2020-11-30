@@ -1,5 +1,9 @@
 package rogue;
 
 public interface Tossable {
-  public String toss();
+  /**
+  * returns description of item.
+  * @return (String);
+  */
+  String toss();
 }

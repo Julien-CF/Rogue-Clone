@@ -1,5 +1,9 @@
 package rogue;
 
 public interface Wearable {
-  public String wear();
+  /**
+  * Returns description of item.
+  * @return (String)
+  */
+  String wear();
 }
